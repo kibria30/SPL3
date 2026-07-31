@@ -5,14 +5,25 @@ where test_series begins -- see forecasting/models/tensor_ar.py's docstring and
 forecasting/KNOWLEDGE_BASE.md's "Bug #2"), scores the forecast, and persists a Result row plus
 actual/predicted .npy files.
 
-Dispatched off the request thread via dispatch_experiment() -- a small bounded ThreadPoolExecutor,
-since both gradient training and SARIMAX MLE fits are CPU-heavy and don't parallelize well
-against each other on a small box (see plan's "Experiment execution" section).
+Dispatched off the request thread via dispatch_experiment() into a *process* pool, not a thread
+pool. A thread pool was tried first and caused exactly the symptom reported against real usage:
+running a heavy attention model (TimeXer) froze the whole API, including simple polling GETs on
+other experiments. Root cause is the GIL, not the thread pool's size -- torch's CPU-side Python
+overhead (autograd bookkeeping, optimizer steps, tensor slicing) holds the GIL for stretches long
+enough to starve uvicorn's asyncio event loop thread, so the whole process (all requests, not
+just the one experiment) stalls for the training's duration. A ProcessPoolExecutor sidesteps this
+entirely -- each worker is a separate interpreter with its own GIL, so heavy training in one
+process can't block the main API process from serving other requests. Uses the "spawn" start
+method deliberately, not the Linux default "fork": forking after `app.core.db`'s SQLAlchemy
+engine/connection pool already exists would let the child inherit live Postgres socket file
+descriptors, which corrupts both processes' connections if they're used concurrently. Spawn starts
+a fresh interpreter that re-imports and re-creates its own engine instead.
 """
 import json
+import multiprocessing
 import os
 import time
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ProcessPoolExecutor
 from datetime import datetime, timezone
 
 import numpy as np
@@ -27,7 +38,7 @@ from app.services.dataset_registry import load_dataset_dataframe
 from app.services.forecasting_bridge import compute_mase_denominators, compute_metrics_table, period_split, summarize
 from app.services.model_registry import build_model
 
-_executor = ThreadPoolExecutor(max_workers=2)
+_executor = ProcessPoolExecutor(max_workers=2, mp_context=multiprocessing.get_context("spawn"))
 
 
 def dispatch_experiment(experiment_id: int) -> None:
