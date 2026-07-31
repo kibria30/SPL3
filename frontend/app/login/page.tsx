@@ -19,7 +19,7 @@ export default function LoginPage() {
     setPending(true);
     try {
       await loginUser(email, password);
-      router.push("/datasets");
+      router.push("/");
       router.refresh();
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Login failed");

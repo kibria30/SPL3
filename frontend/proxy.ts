@@ -16,7 +16,7 @@ export default function proxy(req: NextRequest) {
   }
 
   if ((pathname === "/login" || pathname === "/register") && hasSession) {
-    return NextResponse.redirect(new URL("/datasets", req.nextUrl));
+    return NextResponse.redirect(new URL("/", req.nextUrl));
   }
 
   return NextResponse.next();

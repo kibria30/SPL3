@@ -20,7 +20,7 @@ export default function RegisterPage() {
     setPending(true);
     try {
       await registerUser(name, email, password);
-      router.push("/datasets");
+      router.push("/");
       router.refresh();
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Registration failed");
