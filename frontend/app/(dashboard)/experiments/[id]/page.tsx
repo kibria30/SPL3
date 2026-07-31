@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import ForecastChart from "@/components/ForecastChart";
+import StatusBadge from "@/components/StatusBadge";
 import {
   getExperiment,
   getExperimentResult,
@@ -11,13 +12,6 @@ import {
   type ExperimentResult,
   type SeriesData,
 } from "@/lib/experiments";
-
-const STATUS_STYLES: Record<Experiment["status"], string> = {
-  completed: "bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300",
-  running: "bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300",
-  pending: "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300",
-  failed: "bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300",
-};
 
 const METRIC_COLUMNS = ["R2", "MSE", "MAE", "RMSE", "MASE", "sMAPE"] as const;
 
@@ -62,9 +56,7 @@ export default function ExperimentDetailPage() {
     <div>
       <div className="mb-6 flex items-center gap-3">
         <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-50">{experiment.experiment_name}</h1>
-        <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_STYLES[experiment.status]}`}>
-          {experiment.status}
-        </span>
+        <StatusBadge status={experiment.status} />
       </div>
 
       <p className="mb-6 text-sm text-zinc-500 dark:text-zinc-400">

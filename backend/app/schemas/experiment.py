@@ -54,3 +54,58 @@ class SeriesOut(BaseModel):
     feature_names: list[str]
     actual: list[list[float]]
     predicted: list[list[float]]
+
+
+class ExperimentBatchCreate(BaseModel):
+    dataset_id: int
+    experiment_name_prefix: str
+    test_periods: int = Field(ge=8, le=25)
+    input_periods: int = Field(ge=5, le=20)
+    val_ratio: float = Field(default=0.2, gt=0, lt=1)
+    model_slugs: list[str] = Field(min_length=1)
+
+
+class SkippedModelOut(BaseModel):
+    model_slug: str
+    reason: str
+
+
+class ExperimentBatchOut(BaseModel):
+    dataset_id: int
+    test_periods: int
+    input_periods: int
+    val_ratio: float
+    created: list[ExperimentOut]
+    skipped: list[SkippedModelOut]
+
+
+class ComparisonEntryOut(BaseModel):
+    experiment: ExperimentOut
+    model_slug: str
+    model_name: str
+    model_family: str
+    result: ResultOut | None
+
+
+class ComparisonViewOut(BaseModel):
+    dataset_id: int
+    dataset_name: str
+    dataset_slug: str | None
+    test_periods: int
+    input_periods: int
+    period_length: int
+    seq_len: int
+    pred_len: int
+    entries: list[ComparisonEntryOut]
+
+
+class ComparisonGroupOut(BaseModel):
+    dataset_id: int
+    dataset_name: str
+    test_periods: int
+    input_periods: int
+    period_length: int
+    model_slugs: list[str]
+    experiment_count: int
+    completed_count: int
+    latest_created_at: datetime

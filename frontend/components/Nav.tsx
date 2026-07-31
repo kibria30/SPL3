@@ -27,6 +27,7 @@ export default function Nav() {
     { href: "/datasets", label: "Datasets" },
     { href: "/models", label: "Models" },
     { href: "/experiments", label: "Experiments" },
+    { href: "/compare", label: "Compare" },
     ...(user?.role === "admin" ? [{ href: "/admin", label: "Admin" }] : []),
   ];
 
