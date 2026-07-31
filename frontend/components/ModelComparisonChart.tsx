@@ -4,20 +4,24 @@ import { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import type { Data, Layout } from "plotly.js";
 import { getPaletteMode } from "@/lib/palette";
+import { getActualColor, getModelColor } from "@/lib/modelColors";
 
 // plotly.js touches `window` at import time -- must be client-only, no SSR.
 const Plot = dynamic(() => import("react-plotly.js"), { ssr: false });
 
-// Fixed categorical assignment (dataviz skill's reference palette, slots 1/2): Actual is
-// always blue, Predicted is always orange, everywhere in the app -- color follows the entity.
-
-interface ForecastChartProps {
-  featureNames: string[];
-  actual: number[][]; // (pred_len, n_vars)
-  predicted: number[][];
+export interface ComparisonSeriesEntry {
+  modelSlug: string;
+  modelName: string;
+  predicted: number[][]; // (pred_len, n_vars)
 }
 
-export default function ForecastChart({ featureNames, actual, predicted }: ForecastChartProps) {
+interface ModelComparisonChartProps {
+  featureNames: string[];
+  actual: number[][]; // (pred_len, n_vars)
+  entries: ComparisonSeriesEntry[]; // only entries with a completed result
+}
+
+export default function ModelComparisonChart({ featureNames, actual, entries }: ModelComparisonChartProps) {
   const [featureIndex, setFeatureIndex] = useState(0);
   const [isDark, setIsDark] = useState(false);
 
@@ -34,22 +38,25 @@ export default function ForecastChart({ featureNames, actual, predicted }: Forec
   const { data, layout } = useMemo(() => {
     const x = actual.map((_, i) => i);
     const actualY = actual.map((row) => row[featureIndex]);
-    const predictedY = predicted.map((row) => row[featureIndex]);
 
     const traces: Data[] = [
       {
         x, y: actualY, type: "scatter", mode: "lines", name: "Actual",
-        line: { color: colors.blue, width: 2 },
+        line: { color: getActualColor(isDark), width: 2 },
       },
-      {
-        x, y: predictedY, type: "scatter", mode: "lines", name: "Predicted",
-        line: { color: colors.orange, width: 2, dash: "dot" },
-      },
+      ...entries.map((entry): Data => ({
+        x,
+        y: entry.predicted.map((row) => row[featureIndex]),
+        type: "scatter",
+        mode: "lines",
+        name: entry.modelName,
+        line: { color: getModelColor(entry.modelSlug, isDark), width: 2, dash: "dot" },
+      })),
     ];
 
     const layoutSpec: Partial<Layout> = {
       autosize: true,
-      height: 400,
+      height: 440,
       margin: { l: 50, r: 20, t: 20, b: 40 },
       paper_bgcolor: colors.surface,
       plot_bgcolor: colors.surface,
@@ -61,7 +68,7 @@ export default function ForecastChart({ featureNames, actual, predicted }: Forec
     };
 
     return { data: traces, layout: layoutSpec };
-  }, [actual, predicted, featureIndex, colors, featureNames]);
+  }, [actual, entries, featureIndex, colors, featureNames, isDark]);
 
   return (
     <div>

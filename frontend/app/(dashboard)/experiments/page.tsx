@@ -3,13 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { listExperiments, type Experiment } from "@/lib/experiments";
-
-const STATUS_STYLES: Record<Experiment["status"], string> = {
-  completed: "bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300",
-  running: "bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300",
-  pending: "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300",
-  failed: "bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300",
-};
+import StatusBadge from "@/components/StatusBadge";
 
 export default function ExperimentsPage() {
   const [experiments, setExperiments] = useState<Experiment[] | null>(null);
@@ -71,9 +65,7 @@ export default function ExperimentsPage() {
                     input {e.input_periods}p / output {e.output_periods}p (test {e.test_periods}p)
                   </td>
                   <td className="px-4 py-2">
-                    <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_STYLES[e.status]}`}>
-                      {e.status}
-                    </span>
+                    <StatusBadge status={e.status} />
                   </td>
                   <td className="px-4 py-2 text-zinc-600 dark:text-zinc-400">
                     {new Date(e.created_at).toLocaleString()}
