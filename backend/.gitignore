@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.env
+
+# Raw downloaded/fetched dataset caches (re-fetched via seed.py / admin refresh, not committed --
+# matches tsf_compare/.gitignore's own data/ pattern)
+data/
+
+# Uploaded user files, saved experiment sequences/plots -- runtime state, not source.
+# core/config.py creates these directories at startup, so they don't need to be tracked.
+storage/

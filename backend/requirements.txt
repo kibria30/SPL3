@@ -1,0 +1,22 @@
+# Web framework
+fastapi
+uvicorn[standard]
+sqlalchemy
+alembic
+psycopg2-binary
+pydantic-settings
+pydantic[email]
+bcrypt
+pyjwt
+python-multipart
+openpyxl
+
+# Forecasting library (app/forecasting/, a copy of tsf_compare/) dependencies
+numpy
+pandas
+scikit-learn
+torch
+tensorly
+statsmodels
+matplotlib
+requests
