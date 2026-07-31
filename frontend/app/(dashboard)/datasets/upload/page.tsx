@@ -126,7 +126,7 @@ export default function UploadDatasetPage() {
           <select
             value={frequency}
             onChange={(e) => setFrequency(e.target.value)}
-            className="w-full rounded-md border border-black/10 dark:border-white/15 bg-transparent px-3 py-2 text-sm text-zinc-900 dark:text-zinc-50"
+            className="w-full rounded-md border border-black/10 dark:border-white/15 bg-white dark:bg-zinc-900 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-50"
           >
             <option value="hourly">Hourly</option>
             <option value="daily">Daily</option>

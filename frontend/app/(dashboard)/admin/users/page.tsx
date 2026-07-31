@@ -64,7 +64,7 @@ export default function AdminUsersPage() {
                       value={u.role}
                       disabled={updating === u.id}
                       onChange={(e) => handleRoleChange(u.id, e.target.value as UserRole)}
-                      className="rounded-md border border-black/10 dark:border-white/15 bg-transparent px-2 py-1 text-sm text-zinc-900 dark:text-zinc-50"
+                      className="rounded-md border border-black/10 dark:border-white/15 bg-white dark:bg-zinc-900 px-2 py-1 text-sm text-zinc-900 dark:text-zinc-50"
                     >
                       <option value="user">user</option>
                       <option value="admin">admin</option>
