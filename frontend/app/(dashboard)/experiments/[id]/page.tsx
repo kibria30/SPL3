@@ -87,6 +87,15 @@ export default function ExperimentDetailPage() {
 
       {result && (
         <>
+          {series && (
+            <>
+              <h2 className="text-lg font-medium text-zinc-900 dark:text-zinc-50 mb-2">Actual vs. predicted</h2>
+              <div className="mb-8">
+                <ForecastChart featureNames={series.feature_names} actual={series.actual} predicted={series.predicted} />
+              </div>
+            </>
+          )}
+
           <h2 className="text-lg font-medium text-zinc-900 dark:text-zinc-50 mb-2">Metrics</h2>
           <p className="mb-2 text-xs text-zinc-500 dark:text-zinc-400">
             Training time {result.training_time_seconds.toFixed(2)}s
@@ -126,13 +135,6 @@ export default function ExperimentDetailPage() {
               </tbody>
             </table>
           </div>
-
-          {series && (
-            <>
-              <h2 className="text-lg font-medium text-zinc-900 dark:text-zinc-50 mb-2">Actual vs. predicted</h2>
-              <ForecastChart featureNames={series.feature_names} actual={series.actual} predicted={series.predicted} />
-            </>
-          )}
         </>
       )}
     </div>
