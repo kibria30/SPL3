@@ -65,7 +65,7 @@ export default function NewExperimentPage() {
 
     setSubmitting(true);
     try {
-      const experiment = await createExperiment({
+      await createExperiment({
         dataset_id: datasetId,
         model_slug: modelSlug,
         experiment_name: experimentName,
@@ -73,7 +73,9 @@ export default function NewExperimentPage() {
         input_periods: inputPeriods,
         hyperparams,
       });
-      router.push(`/experiments/${experiment.id}`);
+      // Runs in the background (see ExperimentTracker in the dashboard layout) -- send the user
+      // to the list rather than making them sit on this one experiment's detail page.
+      router.push("/experiments");
     } catch (err) {
       setSubmitError(err instanceof Error ? err.message : "Could not create experiment");
     } finally {

@@ -1,10 +1,20 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api import admin, auth, datasets, experiments, models
 from app.core.config import settings
+from app.services.experiment_runner import recover_orphaned_experiments
 
-app = FastAPI(title="Visual TS Forecasting Library API")
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    recover_orphaned_experiments()
+    yield
+
+
+app = FastAPI(title="Visual TS Forecasting Library API", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,

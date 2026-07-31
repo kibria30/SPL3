@@ -45,6 +45,33 @@ def dispatch_experiment(experiment_id: int) -> None:
     _executor.submit(run_experiment, experiment_id)
 
 
+def recover_orphaned_experiments() -> None:
+    """Called once at API startup. An experiment left in pending/running status belongs to a
+    previous server process that no longer exists (crashed, killed, or restarted mid-run) --
+    the process pool that would have completed it died along with that process, so it can never
+    self-resolve. Mark these failed rather than leaving them stuck "running" forever in a UI
+    that polls expecting them to eventually terminate (observed in real usage: a killed server
+    left two TimeXer runs permanently stuck in "running").
+    """
+    db = SessionLocal()
+    try:
+        orphaned = (
+            db.query(Experiment)
+            .filter(Experiment.status.in_([ExperimentStatus.pending, ExperimentStatus.running]))
+            .all()
+        )
+        for experiment in orphaned:
+            experiment.status = ExperimentStatus.failed
+            experiment.error_message = (
+                "Interrupted by a server restart before the run finished. Please re-run the experiment."
+            )
+            experiment.completed_at = datetime.now(timezone.utc)
+        if orphaned:
+            db.commit()
+    finally:
+        db.close()
+
+
 def run_experiment(experiment_id: int) -> None:
     db = SessionLocal()
     try:

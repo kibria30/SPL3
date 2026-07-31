@@ -25,6 +25,7 @@ export default function Nav() {
 
   const links = [
     { href: "/datasets", label: "Datasets" },
+    { href: "/models", label: "Models" },
     { href: "/experiments", label: "Experiments" },
     ...(user?.role === "admin" ? [{ href: "/admin", label: "Admin" }] : []),
   ];
