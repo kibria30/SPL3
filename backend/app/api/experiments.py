@@ -42,10 +42,11 @@ def _owned_experiment_or_404(experiment_id: int, user: User, db: Session) -> Exp
 def _create_experiment_row(
     db: Session, user: User, dataset: Dataset, model: ForecastingModel, elig: SplitEligibility,
     experiment_name: str, test_periods: int, input_periods: int, val_ratio: float, hyperparams: dict,
+    task_type: str = "forecasting",
 ) -> Experiment:
     experiment = Experiment(
         user_id=user.id, model_id=model.id, dataset_id=dataset.id,
-        experiment_name=experiment_name,
+        experiment_name=experiment_name, task_type=task_type,
         test_periods=test_periods, input_periods=input_periods,
         output_periods=test_periods - input_periods,
         period_length=dataset.period_length, seq_len=elig.seq_len, pred_len=elig.pred_len,
@@ -101,7 +102,7 @@ def create_comparison_batch(
             db, user, dataset, model, elig,
             experiment_name=f"{payload.experiment_name_prefix} — {model.name}",
             test_periods=payload.test_periods, input_periods=payload.input_periods,
-            val_ratio=payload.val_ratio, hyperparams={},
+            val_ratio=payload.val_ratio, hyperparams={}, task_type=payload.task_type,
         )
         created.append(experiment)
 
@@ -216,7 +217,7 @@ def create_experiment(
         db, user, dataset, model, elig,
         experiment_name=payload.experiment_name,
         test_periods=payload.test_periods, input_periods=payload.input_periods,
-        val_ratio=payload.val_ratio, hyperparams=payload.hyperparams,
+        val_ratio=payload.val_ratio, hyperparams=payload.hyperparams, task_type=payload.task_type,
     )
 
 

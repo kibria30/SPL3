@@ -9,6 +9,7 @@ class ExperimentCreate(BaseModel):
     dataset_id: int
     model_slug: str
     experiment_name: str
+    task_type: str = "forecasting"
     test_periods: int = Field(ge=8, le=25)
     input_periods: int = Field(ge=5, le=20)
     val_ratio: float = Field(default=0.2, gt=0, lt=1)
@@ -21,6 +22,7 @@ class ExperimentOut(BaseModel):
     model_id: int
     dataset_id: int
     experiment_name: str
+    task_type: str
     test_periods: int
     input_periods: int
     output_periods: int
@@ -59,6 +61,7 @@ class SeriesOut(BaseModel):
 class ExperimentBatchCreate(BaseModel):
     dataset_id: int
     experiment_name_prefix: str
+    task_type: str = "forecasting"
     test_periods: int = Field(ge=8, le=25)
     input_periods: int = Field(ge=5, le=20)
     val_ratio: float = Field(default=0.2, gt=0, lt=1)

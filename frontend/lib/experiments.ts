@@ -8,6 +8,7 @@ export interface Experiment {
   model_id: number;
   dataset_id: number;
   experiment_name: string;
+  task_type: string;
   test_periods: number;
   input_periods: number;
   output_periods: number;
