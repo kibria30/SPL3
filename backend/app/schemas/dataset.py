@@ -40,6 +40,10 @@ class DatasetColumnUpdate(BaseModel):
     visibility: DatasetVisibility | None = None
 
 
+class DatasetVisibilityUpdate(BaseModel):
+    visibility: DatasetVisibility
+
+
 class SplitPreviewOut(BaseModel):
     seq_len: int
     pred_len: int

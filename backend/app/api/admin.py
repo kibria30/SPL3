@@ -1,12 +1,15 @@
-from fastapi import APIRouter, Depends, HTTPException
+import os
+
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.core.db import get_db
 from app.core.security import require_admin
 from app.db_models.dataset import Dataset, DatasetSource, DatasetStatus
+from app.db_models.experiment import Experiment
 from app.db_models.user import User
 from app.schemas.auth import UserOut, UserRoleUpdate
-from app.schemas.dataset import DatasetOut
+from app.schemas.dataset import DatasetOut, DatasetVisibilityUpdate
 from app.services.dataset_registry import SYSTEM_LOADERS
 
 router = APIRouter(prefix="/admin", tags=["admin"])
@@ -48,6 +51,47 @@ def refresh_system_dataset(slug: str, admin: User = Depends(require_admin), db: 
     db.commit()
     db.refresh(dataset)
     return dataset
+
+
+@router.patch("/datasets/{dataset_id}/visibility", response_model=DatasetOut)
+def update_dataset_visibility(
+    dataset_id: int,
+    payload: DatasetVisibilityUpdate,
+    admin: User = Depends(require_admin),
+    db: Session = Depends(get_db),
+):
+    dataset = db.get(Dataset, dataset_id)
+    if dataset is None:
+        raise HTTPException(status_code=404, detail="Dataset not found")
+    if dataset.source == DatasetSource.system:
+        raise HTTPException(status_code=400, detail="System dataset visibility cannot be changed")
+
+    dataset.visibility = payload.visibility
+    db.commit()
+    db.refresh(dataset)
+    return dataset
+
+
+@router.delete("/datasets/{dataset_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_dataset(dataset_id: int, admin: User = Depends(require_admin), db: Session = Depends(get_db)):
+    dataset = db.get(Dataset, dataset_id)
+    if dataset is None:
+        raise HTTPException(status_code=404, detail="Dataset not found")
+    if dataset.source == DatasetSource.system:
+        raise HTTPException(status_code=400, detail="System datasets cannot be deleted")
+
+    experiment_count = db.query(Experiment).filter(Experiment.dataset_id == dataset_id).count()
+    if experiment_count:
+        raise HTTPException(
+            status_code=409,
+            detail=f"Cannot delete: {experiment_count} experiment(s) still reference this dataset",
+        )
+
+    if dataset.file_path and os.path.exists(dataset.file_path):
+        os.remove(dataset.file_path)
+
+    db.delete(dataset)
+    db.commit()
 
 
 @router.get("/users", response_model=list[UserOut])
