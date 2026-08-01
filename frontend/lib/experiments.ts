@@ -104,3 +104,7 @@ export function createExperiment(payload: CreateExperimentPayload) {
     body: JSON.stringify(payload),
   });
 }
+
+export function deleteExperiment(id: number) {
+  return apiFetch<void>(`/experiments/${id}`, { method: "DELETE" });
+}

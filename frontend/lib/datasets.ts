@@ -75,3 +75,7 @@ export function updateDatasetColumns(
     body: JSON.stringify(payload),
   });
 }
+
+export function deleteDataset(id: number) {
+  return apiFetch<void>(`/datasets/${id}`, { method: "DELETE" });
+}

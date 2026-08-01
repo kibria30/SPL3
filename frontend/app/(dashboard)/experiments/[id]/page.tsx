@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import ForecastChart from "@/components/ForecastChart";
 import StatusBadge from "@/components/StatusBadge";
 import {
+  deleteExperiment,
   getExperiment,
   getExperimentResult,
   getExperimentSeries,
@@ -13,6 +14,7 @@ import {
   type SeriesData,
 } from "@/lib/experiments";
 import { listModels, type ForecastingModel } from "@/lib/models";
+import { ApiError } from "@/lib/api";
 
 const METRIC_COLUMNS = ["R2", "MSE", "MAE", "RMSE", "MASE", "sMAPE"] as const;
 
@@ -75,6 +77,7 @@ function TrainingProgress({ experiment }: { experiment: Experiment }) {
 
 export default function ExperimentDetailPage() {
   const params = useParams<{ id: string }>();
+  const router = useRouter();
   const id = Number(params.id);
 
   const [experiment, setExperiment] = useState<Experiment | null>(null);
@@ -82,6 +85,8 @@ export default function ExperimentDetailPage() {
   const [series, setSeries] = useState<SeriesData | null>(null);
   const [models, setModels] = useState<ForecastingModel[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
@@ -120,12 +125,45 @@ export default function ExperimentDetailPage() {
   if (error) return <p className="text-sm text-red-600">{error}</p>;
   if (!experiment) return <p className="text-sm text-zinc-500 dark:text-zinc-400">Loading...</p>;
 
+  const isLive = experiment.status === "pending" || experiment.status === "running";
+
+  async function handleDelete() {
+    if (!experiment) return;
+    const confirmed = confirm(
+      `Delete "${experiment.experiment_name}"? This permanently removes the experiment and its results. ` +
+      "This cannot be undone."
+    );
+    if (!confirmed) return;
+
+    setDeleting(true);
+    setDeleteError(null);
+    try {
+      await deleteExperiment(experiment.id);
+      router.push("/experiments");
+    } catch (e) {
+      setDeleting(false);
+      setDeleteError(e instanceof ApiError ? e.message : e instanceof Error ? e.message : "Delete failed");
+    }
+  }
+
   return (
     <div>
-      <div className="mb-6 flex items-center gap-3">
-        <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-50">{experiment.experiment_name}</h1>
-        <StatusBadge status={experiment.status} />
+      <div className="mb-6 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-50">{experiment.experiment_name}</h1>
+          <StatusBadge status={experiment.status} />
+        </div>
+        <button
+          onClick={handleDelete}
+          disabled={deleting || isLive}
+          title={isLive ? "Cannot delete while pending or running" : undefined}
+          className="rounded-md border border-red-600 text-red-600 px-3 py-1.5 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {deleting ? "Deleting..." : "Delete experiment"}
+        </button>
       </div>
+
+      {deleteError && <p className="mb-4 text-sm text-red-600">{deleteError}</p>}
 
       <p className="mb-6 text-sm text-zinc-500 dark:text-zinc-400">
         input {experiment.input_periods}p / output {experiment.output_periods}p (test {experiment.test_periods}p)

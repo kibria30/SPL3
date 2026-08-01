@@ -1,4 +1,5 @@
 import json
+import os
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
 from sqlalchemy import or_
@@ -7,6 +8,7 @@ from sqlalchemy.orm import Session
 from app.core.db import get_db
 from app.core.security import get_current_user
 from app.db_models.dataset import Dataset, DatasetSource, DatasetStatus, DatasetVisibility
+from app.db_models.experiment import Experiment
 from app.db_models.user import User
 from app.schemas.dataset import DatasetColumnUpdate, DatasetOut, DatasetPreviewOut, SplitPreviewOut
 from app.services import upload_service
@@ -129,6 +131,29 @@ def update_dataset_columns(
     db.commit()
     db.refresh(dataset)
     return dataset
+
+
+@router.delete("/{dataset_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_dataset(dataset_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    dataset = db.get(Dataset, dataset_id)
+    if dataset is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Dataset not found")
+    if dataset.owner_id != user.id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only the dataset owner can delete it")
+
+    experiment_count = db.query(Experiment).filter(Experiment.dataset_id == dataset_id).count()
+    if experiment_count:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=f"Cannot delete: {experiment_count} experiment(s) still reference this dataset. "
+                   "Delete those experiments first.",
+        )
+
+    if dataset.file_path and os.path.exists(dataset.file_path):
+        os.remove(dataset.file_path)
+
+    db.delete(dataset)
+    db.commit()
 
 
 @router.get("/{dataset_id}/preview", response_model=DatasetPreviewOut)

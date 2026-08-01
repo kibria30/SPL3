@@ -1,3 +1,5 @@
+import os
+import shutil
 from collections import defaultdict
 
 import numpy as np
@@ -5,6 +7,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.api.datasets import _get_visible_dataset_or_404
+from app.core.config import settings
 from app.core.db import get_db
 from app.core.security import get_current_user
 from app.db_models.dataset import Dataset, DatasetStatus
@@ -234,6 +237,27 @@ def list_experiments(user: User = Depends(get_current_user), db: Session = Depen
 @router.get("/{experiment_id}", response_model=ExperimentOut)
 def get_experiment(experiment_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     return _owned_experiment_or_404(experiment_id, user, db)
+
+
+@router.delete("/{experiment_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_experiment(experiment_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    experiment = _owned_experiment_or_404(experiment_id, user, db)
+    if experiment.status in (ExperimentStatus.pending, ExperimentStatus.running):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Cannot delete an experiment that is still pending or running.",
+        )
+
+    result = db.query(Result).filter(Result.experiment_id == experiment.id).first()
+    if result is not None:
+        db.delete(result)
+
+    exp_dir = settings.storage_dir / "experiments" / str(experiment.id)
+    if os.path.isdir(exp_dir):
+        shutil.rmtree(exp_dir)
+
+    db.delete(experiment)
+    db.commit()
 
 
 @router.get("/{experiment_id}/result", response_model=ResultOut)
