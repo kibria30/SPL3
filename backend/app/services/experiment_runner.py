@@ -40,9 +40,27 @@ from app.services.model_registry import build_model
 
 _executor = ProcessPoolExecutor(max_workers=2, mp_context=multiprocessing.get_context("spawn"))
 
+_TRAINING_LOG_MAX_LINES = 100
+
 
 def dispatch_experiment(experiment_id: int) -> None:
     _executor.submit(run_experiment, experiment_id)
+
+
+def _make_progress_callback(db, experiment: Experiment):
+    """Persists per-epoch progress from TorchForecaster.fit() (see forecasting/services/trainer.py)
+    onto the Experiment row so the frontend's polling GET can render a live log + countdown while
+    training is in flight, instead of a bare "running" state.
+    """
+    def _callback(epoch: int, total_epochs: int, val_loss: float, message: str | None, elapsed_seconds: float) -> None:
+        experiment.progress_epoch = epoch
+        experiment.progress_total_epochs = total_epochs
+        experiment.progress_updated_at = datetime.now(timezone.utc)
+        if message:
+            experiment.training_log = (experiment.training_log or [])[-(_TRAINING_LOG_MAX_LINES - 1):] + [message]
+        db.commit()
+
+    return _callback
 
 
 def recover_orphaned_experiments() -> None:
@@ -93,6 +111,9 @@ def run_experiment(experiment_id: int) -> None:
         )
 
         model = build_model(model_meta.slug, period=experiment.period_length, hyperparams=experiment.hyperparams)
+
+        if model_meta.family == ModelFamily.trained:
+            model.progress_callback = _make_progress_callback(db, experiment)
 
         start = time.time()
         if model_meta.family == ModelFamily.trained:

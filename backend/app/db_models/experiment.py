@@ -49,6 +49,15 @@ class Experiment(Base):
     )
     error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
 
+    # Live training progress -- only populated for ModelFamily.trained models (epoch-based fit
+    # loop in forecasting/services/trainer.py). Left null for classical models and any run that
+    # hasn't started training yet; the frontend uses that to decide whether to render a
+    # log/countdown panel at all vs. a plain "Running..." message.
+    progress_epoch: Mapped[int | None] = mapped_column(nullable=True)
+    progress_total_epochs: Mapped[int | None] = mapped_column(nullable=True)
+    progress_updated_at: Mapped[datetime | None] = mapped_column(nullable=True)
+    training_log: Mapped[list] = mapped_column(JSONB, default=list)  # capped list of log line strings
+
     created_at: Mapped[datetime] = mapped_column(default=lambda: datetime.now(timezone.utc))
     started_at: Mapped[datetime | None] = mapped_column(nullable=True)
     completed_at: Mapped[datetime | None] = mapped_column(nullable=True)

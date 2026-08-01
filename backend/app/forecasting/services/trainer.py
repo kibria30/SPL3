@@ -1,3 +1,5 @@
+import time
+
 import numpy as np
 import torch
 import torch.nn as nn
@@ -46,6 +48,13 @@ class TorchForecaster(BaseForecaster):
         n = X_train_t.shape[0]
         best_val, best_state, patience_ctr = float("inf"), None, 0
 
+        # Optional hook for the app layer to observe live progress (epoch/total, timing, log
+        # lines) without this module -- a reusable ML library, also used standalone outside the
+        # web app -- knowing anything about DB models or web requests. Set post-construction,
+        # e.g. `model.progress_callback = fn`, not threaded through __init__/model_kwargs.
+        progress_cb = getattr(self, "progress_callback", None)
+        fit_start = time.time()
+
         for epoch in range(1, self.epochs + 1):
             self.model.train()
             perm = torch.randperm(n)
@@ -60,8 +69,16 @@ class TorchForecaster(BaseForecaster):
             with torch.no_grad():
                 val_loss = loss_fn(self.model(X_val_t), Y_val_t).item()
 
+            message = None
             if epoch == 1 or epoch % 10 == 0:
-                print(f"  [{self.name}] epoch {epoch:03d}  val MSE {val_loss:.4f}")
+                message = f"[{self.name}] epoch {epoch:03d}/{self.epochs}  val MSE {val_loss:.4f}"
+                print(f"  {message}")
+
+            if progress_cb:
+                progress_cb(
+                    epoch=epoch, total_epochs=self.epochs, val_loss=val_loss,
+                    message=message, elapsed_seconds=time.time() - fit_start,
+                )
 
             if val_loss < best_val - 1e-5:
                 best_val = val_loss
@@ -70,7 +87,13 @@ class TorchForecaster(BaseForecaster):
             else:
                 patience_ctr += 1
                 if patience_ctr >= self.patience:
-                    print(f"  [{self.name}] early stopping at epoch {epoch} (best val MSE {best_val:.4f})")
+                    message = f"[{self.name}] early stopping at epoch {epoch} (best val MSE {best_val:.4f})"
+                    print(f"  {message}")
+                    if progress_cb:
+                        progress_cb(
+                            epoch=epoch, total_epochs=self.epochs, val_loss=best_val,
+                            message=message, elapsed_seconds=time.time() - fit_start,
+                        )
                     break
 
         if best_state is not None:

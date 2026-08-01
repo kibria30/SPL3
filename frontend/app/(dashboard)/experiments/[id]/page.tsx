@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import ForecastChart from "@/components/ForecastChart";
 import StatusBadge from "@/components/StatusBadge";
@@ -12,8 +12,66 @@ import {
   type ExperimentResult,
   type SeriesData,
 } from "@/lib/experiments";
+import { listModels, type ForecastingModel } from "@/lib/models";
 
 const METRIC_COLUMNS = ["R2", "MSE", "MAE", "RMSE", "MASE", "sMAPE"] as const;
+
+function formatDuration(totalSeconds: number): string {
+  const m = Math.floor(totalSeconds / 60);
+  const s = Math.floor(totalSeconds % 60);
+  return `${m}:${s.toString().padStart(2, "0")}`;
+}
+
+function TrainingProgress({ experiment }: { experiment: Experiment }) {
+  const [now, setNow] = useState(() => Date.now());
+
+  useEffect(() => {
+    const t = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(t);
+  }, []);
+
+  const epoch = experiment.progress_epoch;
+  const total = experiment.progress_total_epochs;
+
+  const elapsedSeconds = useMemo(() => {
+    if (!experiment.started_at) return null;
+    return Math.max(0, Math.round((now - new Date(experiment.started_at).getTime()) / 1000));
+  }, [experiment.started_at, now]);
+
+  const logRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    if (logRef.current) logRef.current.scrollTop = logRef.current.scrollHeight;
+  }, [experiment.training_log]);
+
+  return (
+    <div className="rounded-md border border-black/10 dark:border-white/10 p-4">
+      <div className="mb-2 flex items-center justify-between text-sm text-zinc-600 dark:text-zinc-400">
+        <span>
+          {epoch && total ? `Epoch ${epoch} / ${total}` : "Starting training..."}
+        </span>
+        {elapsedSeconds !== null && <span>{formatDuration(elapsedSeconds)} elapsed</span>}
+      </div>
+      {epoch && total && (
+        <div className="mb-3 h-1.5 w-full overflow-hidden rounded-full bg-zinc-200 dark:bg-zinc-800">
+          <div
+            className="h-full rounded-full bg-foreground transition-all"
+            style={{ width: `${Math.min(100, (epoch / total) * 100)}%` }}
+          />
+        </div>
+      )}
+      <div
+        ref={logRef}
+        className="max-h-48 overflow-y-auto rounded bg-zinc-50 dark:bg-zinc-900 p-2 font-mono text-xs text-zinc-700 dark:text-zinc-300"
+      >
+        {experiment.training_log.length === 0 ? (
+          <p className="text-zinc-400 dark:text-zinc-600">Waiting for the first log line...</p>
+        ) : (
+          experiment.training_log.map((line, i) => <div key={i}>{line}</div>)
+        )}
+      </div>
+    </div>
+  );
+}
 
 export default function ExperimentDetailPage() {
   const params = useParams<{ id: string }>();
@@ -22,8 +80,18 @@ export default function ExperimentDetailPage() {
   const [experiment, setExperiment] = useState<Experiment | null>(null);
   const [result, setResult] = useState<ExperimentResult | null>(null);
   const [series, setSeries] = useState<SeriesData | null>(null);
+  const [models, setModels] = useState<ForecastingModel[]>([]);
   const [error, setError] = useState<string | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    listModels().then(setModels).catch(() => {});
+  }, []);
+
+  const model = useMemo(
+    () => (experiment ? models.find((m) => m.id === experiment.model_id) ?? null : null),
+    [models, experiment]
+  );
 
   useEffect(() => {
     function load() {
@@ -71,10 +139,18 @@ export default function ExperimentDetailPage() {
         </p>
       )}
 
-      {(experiment.status === "pending" || experiment.status === "running") && (
-        <p className="text-sm text-zinc-500 dark:text-zinc-400">
-          {experiment.status === "pending" ? "Waiting to start..." : "Running..."}
-        </p>
+      {experiment.status === "pending" && (
+        <p className="mb-6 text-sm text-zinc-500 dark:text-zinc-400">Waiting to start...</p>
+      )}
+
+      {experiment.status === "running" && (
+        <div className="mb-6">
+          {model?.requires_training ? (
+            <TrainingProgress experiment={experiment} />
+          ) : (
+            <p className="text-sm text-zinc-500 dark:text-zinc-400">Running...</p>
+          )}
+        </div>
       )}
 
       {result && (

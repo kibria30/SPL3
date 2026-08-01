@@ -23,6 +23,10 @@ export interface Experiment {
   created_at: string;
   started_at: string | null;
   completed_at: string | null;
+  progress_epoch: number | null;
+  progress_total_epochs: number | null;
+  progress_updated_at: string | null;
+  training_log: string[];
 }
 
 export interface FeatureMetrics {

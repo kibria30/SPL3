@@ -37,6 +37,10 @@ class ExperimentOut(BaseModel):
     created_at: datetime
     started_at: datetime | None
     completed_at: datetime | None
+    progress_epoch: int | None
+    progress_total_epochs: int | None
+    progress_updated_at: datetime | None
+    training_log: list[str]
 
     model_config = {"from_attributes": True}
 
