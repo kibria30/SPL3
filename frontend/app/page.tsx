@@ -14,6 +14,8 @@ const SHORTCUTS = [
   { href: "/models", label: "Models", description: "See the 7 forecasting models available for experiments." },
   { href: "/experiments/new", label: "New experiment", description: "Run a model against a dataset with a custom split." },
   { href: "/experiments", label: "Experiments", description: "View results and track running experiments." },
+  { href: "/compare/new", label: "New comparison", description: "Run several models on the same split to compare them." },
+  { href: "/compare", label: "Compare", description: "Compare multiple models' results side by side." },
 ];
 
 export default function Home() {
