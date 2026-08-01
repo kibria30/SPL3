@@ -53,8 +53,11 @@ export default function DatasetsPage() {
             <tbody className="divide-y divide-black/10 dark:divide-white/10 bg-white dark:bg-zinc-950">
               {datasets.map((d) => (
                 <tr key={d.id} className="hover:bg-zinc-50 dark:hover:bg-zinc-900">
-                  <td className="px-4 py-2">
-                    <Link href={`/datasets/${d.id}`} className="font-medium text-zinc-900 dark:text-zinc-50 underline">
+                  <td className="p-0">
+                    <Link
+                      href={`/datasets/${d.id}`}
+                      className="block px-4 py-2 font-medium text-zinc-900 dark:text-zinc-50"
+                    >
                       {d.name}
                     </Link>
                   </td>
