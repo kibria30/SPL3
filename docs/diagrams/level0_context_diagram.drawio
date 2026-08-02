@@ -1,4 +1,4 @@
-<mxfile host="app.diagrams.net" pages="7">
+<mxfile host="app.diagrams.net" pages="8">
   <diagram name="Level 0 - System Context" id="level0context">
     <mxGraphModel dx="1344" dy="764" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="500" math="0" shadow="0">
       <root>
@@ -648,6 +648,257 @@
         </mxCell>
         <mxCell id="legTx5" parent="KFyEsb3e6y_wNFiBdKw5-1" style="text;whiteSpace=wrap;align=left;verticalAlign=middle;fontSize=11;" value="Fork / Join (parallel)" vertex="1">
           <mxGeometry height="24" width="180" x="42" y="150" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="er-diagram" name="ER Diagram">
+    <mxGraphModel dx="3142" dy="1019" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1350" pageHeight="1650" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="ent_users" parent="1" style="swimlane;fontStyle=1;fontSize=13;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=0;resizeParentMax=0;collapsible=0;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="users" vertex="1">
+          <mxGeometry height="162" width="300" x="-10" y="530" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_users_r0" parent="ent_users" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=5;whiteSpace=nowrap;portConstraint=eastwest;points=[[0,0.5],[1,0.5]];" value="PK  id : integer" vertex="1">
+          <mxGeometry height="22" width="300" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_users_r1" parent="ent_users" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;whiteSpace=nowrap;portConstraint=eastwest;points=[[0,0.5],[1,0.5]];" value="name : varchar(255)" vertex="1">
+          <mxGeometry height="22" width="300" y="52" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_users_r2" parent="ent_users" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;whiteSpace=nowrap;portConstraint=eastwest;points=[[0,0.5],[1,0.5]];" value="email : varchar(255)  [UNIQUE]" vertex="1">
+          <mxGeometry height="22" width="300" y="74" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_users_r3" parent="ent_users" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;whiteSpace=nowrap;portConstraint=eastwest;points=[[0,0.5],[1,0.5]];" value="password_hash : varchar(255)" vertex="1">
+          <mxGeometry height="22" width="300" y="96" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_users_r4" parent="ent_users" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;whiteSpace=nowrap;portConstraint=eastwest;points=[[0,0.5],[1,0.5]];" value="role : enum(user, admin)" vertex="1">
+          <mxGeometry height="22" width="300" y="118" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_users_r5" parent="ent_users" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;whiteSpace=nowrap;portConstraint=eastwest;points=[[0,0.5],[1,0.5]];" value="created_at : timestamp" vertex="1">
+          <mxGeometry height="22" width="300" y="140" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_datasets" parent="1" style="swimlane;fontStyle=1;fontSize=13;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=0;resizeParentMax=0;collapsible=0;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="datasets" vertex="1">
+          <mxGeometry height="338" width="320" x="-30" y="942" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_datasets_r0" parent="ent_datasets" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=5;whiteSpace=nowrap;portConstraint=eastwest;points=[[0,0.5],[1,0.5]];" value="PK  id : integer" vertex="1">
+          <mxGeometry height="22" width="320" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_datasets_r1" parent="ent_datasets" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=2;whiteSpace=nowrap;portConstraint=eastwest;points=[[0,0.5],[1,0.5]];" value="FK  owner_id : integer  → users.id  [nullable]" vertex="1">
+          <mxGeometry height="22" width="320" y="52" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_datasets_r2" parent="ent_datasets" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;whiteSpace=nowrap;portConstraint=eastwest;points=[[0,0.5],[1,0.5]];" value="slug : varchar(64)  [UNIQUE, nullable]" vertex="1">
+          <mxGeometry height="22" width="320" y="74" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_datasets_r3" parent="ent_datasets" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;whiteSpace=nowrap;portConstraint=eastwest;points=[[0,0.5],[1,0.5]];" value="name : varchar(255)" vertex="1">
+          <mxGeometry height="22" width="320" y="96" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_datasets_r4" parent="ent_datasets" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;whiteSpace=nowrap;portConstraint=eastwest;points=[[0,0.5],[1,0.5]];" value="source : enum(system, user)" vertex="1">
+          <mxGeometry height="22" width="320" y="118" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_datasets_r5" parent="ent_datasets" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;whiteSpace=nowrap;portConstraint=eastwest;points=[[0,0.5],[1,0.5]];" value="visibility : enum(system, private, public)" vertex="1">
+          <mxGeometry height="22" width="320" y="140" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_datasets_r6" parent="ent_datasets" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;whiteSpace=nowrap;portConstraint=eastwest;points=[[0,0.5],[1,0.5]];" value="file_path : varchar(1024)  [nullable]" vertex="1">
+          <mxGeometry height="22" width="320" y="162" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_datasets_r7" parent="ent_datasets" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;whiteSpace=nowrap;portConstraint=eastwest;points=[[0,0.5],[1,0.5]];" value="frequency : varchar(32)" vertex="1">
+          <mxGeometry height="22" width="320" y="184" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_datasets_r8" parent="ent_datasets" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;whiteSpace=nowrap;portConstraint=eastwest;points=[[0,0.5],[1,0.5]];" value="period_length : integer" vertex="1">
+          <mxGeometry height="22" width="320" y="206" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_datasets_r9" parent="ent_datasets" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;whiteSpace=nowrap;portConstraint=eastwest;points=[[0,0.5],[1,0.5]];" value="rows : integer" vertex="1">
+          <mxGeometry height="22" width="320" y="228" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_datasets_r10" parent="ent_datasets" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;whiteSpace=nowrap;portConstraint=eastwest;points=[[0,0.5],[1,0.5]];" value="available_columns : jsonb" vertex="1">
+          <mxGeometry height="22" width="320" y="250" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_datasets_r11" parent="ent_datasets" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;whiteSpace=nowrap;portConstraint=eastwest;points=[[0,0.5],[1,0.5]];" value="selected_columns : jsonb" vertex="1">
+          <mxGeometry height="22" width="320" y="272" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_datasets_r12" parent="ent_datasets" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;whiteSpace=nowrap;portConstraint=eastwest;points=[[0,0.5],[1,0.5]];" value="status : enum(pending_column_selection, ready, error)" vertex="1">
+          <mxGeometry height="22" width="320" y="294" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_datasets_r13" parent="ent_datasets" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;whiteSpace=nowrap;portConstraint=eastwest;points=[[0,0.5],[1,0.5]];" value="uploaded_at : timestamp" vertex="1">
+          <mxGeometry height="22" width="320" y="316" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_forecasting_models" parent="1" style="swimlane;fontStyle=1;fontSize=13;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=0;resizeParentMax=0;collapsible=0;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="forecasting_models" vertex="1">
+          <mxGeometry height="316" width="320" x="910" y="500" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_forecasting_models_r0" parent="ent_forecasting_models" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=5;whiteSpace=nowrap;portConstraint=eastwest;points=[[0,0.5],[1,0.5]];" value="PK  id : integer" vertex="1">
+          <mxGeometry height="22" width="320" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_forecasting_models_r1" parent="ent_forecasting_models" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;whiteSpace=nowrap;portConstraint=eastwest;points=[[0,0.5],[1,0.5]];" value="slug : varchar(64)  [UNIQUE]" vertex="1">
+          <mxGeometry height="22" width="320" y="52" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_forecasting_models_r2" parent="ent_forecasting_models" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;whiteSpace=nowrap;portConstraint=eastwest;points=[[0,0.5],[1,0.5]];" value="name : varchar(255)" vertex="1">
+          <mxGeometry height="22" width="320" y="74" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_forecasting_models_r3" parent="ent_forecasting_models" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;whiteSpace=nowrap;portConstraint=eastwest;points=[[0,0.5],[1,0.5]];" value="family : enum(classical, trained)" vertex="1">
+          <mxGeometry height="22" width="320" y="96" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_forecasting_models_r4" parent="ent_forecasting_models" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;whiteSpace=nowrap;portConstraint=eastwest;points=[[0,0.5],[1,0.5]];" value="requires_training : boolean" vertex="1">
+          <mxGeometry height="22" width="320" y="118" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_forecasting_models_r5" parent="ent_forecasting_models" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;whiteSpace=nowrap;portConstraint=eastwest;points=[[0,0.5],[1,0.5]];" value="default_hyperparams : jsonb" vertex="1">
+          <mxGeometry height="22" width="320" y="140" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_forecasting_models_r6" parent="ent_forecasting_models" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;whiteSpace=nowrap;portConstraint=eastwest;points=[[0,0.5],[1,0.5]];" value="paper_title : text  [nullable]" vertex="1">
+          <mxGeometry height="22" width="320" y="162" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_forecasting_models_r7" parent="ent_forecasting_models" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;whiteSpace=nowrap;portConstraint=eastwest;points=[[0,0.5],[1,0.5]];" value="publication : varchar(255)  [nullable]" vertex="1">
+          <mxGeometry height="22" width="320" y="184" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_forecasting_models_r8" parent="ent_forecasting_models" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;whiteSpace=nowrap;portConstraint=eastwest;points=[[0,0.5],[1,0.5]];" value="year : integer  [nullable]" vertex="1">
+          <mxGeometry height="22" width="320" y="206" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_forecasting_models_r9" parent="ent_forecasting_models" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;whiteSpace=nowrap;portConstraint=eastwest;points=[[0,0.5],[1,0.5]];" value="authors : text  [nullable]" vertex="1">
+          <mxGeometry height="22" width="320" y="228" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_forecasting_models_r10" parent="ent_forecasting_models" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;whiteSpace=nowrap;portConstraint=eastwest;points=[[0,0.5],[1,0.5]];" value="description : text  [nullable]" vertex="1">
+          <mxGeometry height="22" width="320" y="250" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_forecasting_models_r11" parent="ent_forecasting_models" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;whiteSpace=nowrap;portConstraint=eastwest;points=[[0,0.5],[1,0.5]];" value="github_url : varchar(512)  [nullable]" vertex="1">
+          <mxGeometry height="22" width="320" y="272" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_forecasting_models_r12" parent="ent_forecasting_models" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;whiteSpace=nowrap;portConstraint=eastwest;points=[[0,0.5],[1,0.5]];" value="created_at : timestamp" vertex="1">
+          <mxGeometry height="22" width="320" y="294" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_experiments" parent="1" style="swimlane;fontStyle=1;fontSize=13;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=0;resizeParentMax=0;collapsible=0;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="experiments" vertex="1">
+          <mxGeometry height="580" width="340" x="440" y="700" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_experiments_r0" parent="ent_experiments" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=5;whiteSpace=nowrap;portConstraint=eastwest;points=[[0,0.5],[1,0.5]];" value="PK  id : integer" vertex="1">
+          <mxGeometry height="22" width="340" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_experiments_r1" parent="ent_experiments" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=2;whiteSpace=nowrap;portConstraint=eastwest;points=[[0,0.5],[1,0.5]];" value="FK  user_id : integer  → users.id" vertex="1">
+          <mxGeometry height="22" width="340" y="52" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_experiments_r2" parent="ent_experiments" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=2;whiteSpace=nowrap;portConstraint=eastwest;points=[[0,0.5],[1,0.5]];" value="FK  model_id : integer  → forecasting_models.id" vertex="1">
+          <mxGeometry height="22" width="340" y="74" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_experiments_r3" parent="ent_experiments" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=2;whiteSpace=nowrap;portConstraint=eastwest;points=[[0,0.5],[1,0.5]];" value="FK  dataset_id : integer  → datasets.id" vertex="1">
+          <mxGeometry height="22" width="340" y="96" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_experiments_r4" parent="ent_experiments" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;whiteSpace=nowrap;portConstraint=eastwest;points=[[0,0.5],[1,0.5]];" value="experiment_name : varchar(255)" vertex="1">
+          <mxGeometry height="22" width="340" y="118" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_experiments_r5" parent="ent_experiments" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;whiteSpace=nowrap;portConstraint=eastwest;points=[[0,0.5],[1,0.5]];" value="task_type : varchar(32)" vertex="1">
+          <mxGeometry height="22" width="340" y="140" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_experiments_r6" parent="ent_experiments" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;whiteSpace=nowrap;portConstraint=eastwest;points=[[0,0.5],[1,0.5]];" value="test_periods : integer" vertex="1">
+          <mxGeometry height="22" width="340" y="162" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_experiments_r7" parent="ent_experiments" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;whiteSpace=nowrap;portConstraint=eastwest;points=[[0,0.5],[1,0.5]];" value="input_periods : integer" vertex="1">
+          <mxGeometry height="22" width="340" y="184" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_experiments_r8" parent="ent_experiments" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;whiteSpace=nowrap;portConstraint=eastwest;points=[[0,0.5],[1,0.5]];" value="output_periods : integer" vertex="1">
+          <mxGeometry height="22" width="340" y="206" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_experiments_r9" parent="ent_experiments" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;whiteSpace=nowrap;portConstraint=eastwest;points=[[0,0.5],[1,0.5]];" value="period_length : integer" vertex="1">
+          <mxGeometry height="22" width="340" y="228" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_experiments_r10" parent="ent_experiments" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;whiteSpace=nowrap;portConstraint=eastwest;points=[[0,0.5],[1,0.5]];" value="seq_len : integer" vertex="1">
+          <mxGeometry height="22" width="340" y="250" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_experiments_r11" parent="ent_experiments" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;whiteSpace=nowrap;portConstraint=eastwest;points=[[0,0.5],[1,0.5]];" value="pred_len : integer" vertex="1">
+          <mxGeometry height="22" width="340" y="272" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_experiments_r12" parent="ent_experiments" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;whiteSpace=nowrap;portConstraint=eastwest;points=[[0,0.5],[1,0.5]];" value="val_ratio : float" vertex="1">
+          <mxGeometry height="22" width="340" y="294" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_experiments_r13" parent="ent_experiments" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;whiteSpace=nowrap;portConstraint=eastwest;points=[[0,0.5],[1,0.5]];" value="hyperparams : jsonb" vertex="1">
+          <mxGeometry height="22" width="340" y="316" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_experiments_r14" parent="ent_experiments" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;whiteSpace=nowrap;portConstraint=eastwest;points=[[0,0.5],[1,0.5]];" value="has_train_data : boolean" vertex="1">
+          <mxGeometry height="22" width="340" y="338" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_experiments_r15" parent="ent_experiments" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;whiteSpace=nowrap;portConstraint=eastwest;points=[[0,0.5],[1,0.5]];" value="dataset_snapshot_meta : jsonb  [nullable]" vertex="1">
+          <mxGeometry height="22" width="340" y="360" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_experiments_r16" parent="ent_experiments" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;whiteSpace=nowrap;portConstraint=eastwest;points=[[0,0.5],[1,0.5]];" value="status : enum(pending, running, completed, failed)" vertex="1">
+          <mxGeometry height="22" width="340" y="382" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_experiments_r17" parent="ent_experiments" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;whiteSpace=nowrap;portConstraint=eastwest;points=[[0,0.5],[1,0.5]];" value="error_message : text  [nullable]" vertex="1">
+          <mxGeometry height="22" width="340" y="404" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_experiments_r18" parent="ent_experiments" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;whiteSpace=nowrap;portConstraint=eastwest;points=[[0,0.5],[1,0.5]];" value="progress_epoch : integer  [nullable]" vertex="1">
+          <mxGeometry height="22" width="340" y="426" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_experiments_r19" parent="ent_experiments" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;whiteSpace=nowrap;portConstraint=eastwest;points=[[0,0.5],[1,0.5]];" value="progress_total_epochs : integer  [nullable]" vertex="1">
+          <mxGeometry height="22" width="340" y="448" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_experiments_r20" parent="ent_experiments" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;whiteSpace=nowrap;portConstraint=eastwest;points=[[0,0.5],[1,0.5]];" value="progress_updated_at : timestamp  [nullable]" vertex="1">
+          <mxGeometry height="22" width="340" y="470" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_experiments_r21" parent="ent_experiments" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;whiteSpace=nowrap;portConstraint=eastwest;points=[[0,0.5],[1,0.5]];" value="training_log : jsonb" vertex="1">
+          <mxGeometry height="22" width="340" y="492" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_experiments_r22" parent="ent_experiments" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;whiteSpace=nowrap;portConstraint=eastwest;points=[[0,0.5],[1,0.5]];" value="created_at : timestamp" vertex="1">
+          <mxGeometry height="22" width="340" y="514" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_experiments_r23" parent="ent_experiments" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;whiteSpace=nowrap;portConstraint=eastwest;points=[[0,0.5],[1,0.5]];" value="started_at : timestamp  [nullable]" vertex="1">
+          <mxGeometry height="22" width="340" y="536" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_experiments_r24" parent="ent_experiments" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;whiteSpace=nowrap;portConstraint=eastwest;points=[[0,0.5],[1,0.5]];" value="completed_at : timestamp  [nullable]" vertex="1">
+          <mxGeometry height="22" width="340" y="558" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_results" parent="1" style="swimlane;fontStyle=1;fontSize=13;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=0;resizeParentMax=0;collapsible=0;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="results" vertex="1">
+          <mxGeometry height="250" width="320" x="910" y="1020" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_results_r0" parent="ent_results" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=5;whiteSpace=nowrap;portConstraint=eastwest;points=[[0,0.5],[1,0.5]];" value="PK  id : integer" vertex="1">
+          <mxGeometry height="22" width="320" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_results_r1" parent="ent_results" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=2;whiteSpace=nowrap;portConstraint=eastwest;points=[[0,0.5],[1,0.5]];" value="FK  experiment_id : integer  → experiments.id  [UNIQUE]" vertex="1">
+          <mxGeometry height="22" width="320" y="52" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_results_r2" parent="ent_results" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;whiteSpace=nowrap;portConstraint=eastwest;points=[[0,0.5],[1,0.5]];" value="training_time_seconds : float" vertex="1">
+          <mxGeometry height="22" width="320" y="74" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_results_r3" parent="ent_results" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;whiteSpace=nowrap;portConstraint=eastwest;points=[[0,0.5],[1,0.5]];" value="num_parameters : integer  [nullable]" vertex="1">
+          <mxGeometry height="22" width="320" y="96" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_results_r4" parent="ent_results" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;whiteSpace=nowrap;portConstraint=eastwest;points=[[0,0.5],[1,0.5]];" value="metrics_per_feature : jsonb" vertex="1">
+          <mxGeometry height="22" width="320" y="118" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_results_r5" parent="ent_results" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;whiteSpace=nowrap;portConstraint=eastwest;points=[[0,0.5],[1,0.5]];" value="metrics_avg : jsonb" vertex="1">
+          <mxGeometry height="22" width="320" y="140" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_results_r6" parent="ent_results" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;whiteSpace=nowrap;portConstraint=eastwest;points=[[0,0.5],[1,0.5]];" value="actual_sequence_path : varchar(1024)" vertex="1">
+          <mxGeometry height="22" width="320" y="162" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_results_r7" parent="ent_results" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;whiteSpace=nowrap;portConstraint=eastwest;points=[[0,0.5],[1,0.5]];" value="predicted_sequence_path : varchar(1024)" vertex="1">
+          <mxGeometry height="22" width="320" y="184" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_results_r8" parent="ent_results" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;whiteSpace=nowrap;portConstraint=eastwest;points=[[0,0.5],[1,0.5]];" value="plot_paths : jsonb  [nullable]" vertex="1">
+          <mxGeometry height="22" width="320" y="206" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_results_r9" parent="ent_results" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;whiteSpace=nowrap;portConstraint=eastwest;points=[[0,0.5],[1,0.5]];" value="created_at : timestamp" vertex="1">
+          <mxGeometry height="22" width="320" y="228" as="geometry" />
+        </mxCell>
+        <mxCell id="rel_users_datasets" edge="1" parent="1" source="ent_users_r4" style="edgeStyle=entityRelationEdgeStyle;fontSize=11;html=1;endArrow=ERzeroToMany;startArrow=ERzeroToOne;rounded=0;jettySize=30;orthogonalLoop=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" target="ent_datasets_r3" value="owns">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="300" y="660" as="sourcePoint" />
+            <mxPoint x="90" y="450" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel_users_experiments" edge="1" parent="1" source="ent_users_r2" style="edgeStyle=entityRelationEdgeStyle;fontSize=11;html=1;endArrow=ERzeroToMany;startArrow=ERone;rounded=0;jettySize=30;orthogonalLoop=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="ent_experiments_r6" value="runs">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="130" y="570" as="sourcePoint" />
+            <mxPoint x="530" y="570" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel_models_experiments" edge="1" parent="1" source="ent_forecasting_models_r7" style="edgeStyle=entityRelationEdgeStyle;fontSize=11;html=1;endArrow=ERzeroToMany;startArrow=ERone;rounded=0;exitX=0;exitY=0.5;entryX=1;entryY=0.5;jettySize=30;orthogonalLoop=1;entryDx=0;entryDy=0;exitDx=0;exitDy=0;" target="ent_experiments_r7" value="used in">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel_datasets_experiments" edge="1" parent="1" source="ent_datasets_r7" style="edgeStyle=entityRelationEdgeStyle;fontSize=11;html=1;endArrow=ERzeroToMany;startArrow=ERone;rounded=0;exitX=1;exitY=0.5;entryX=0;entryY=0.5;jettySize=30;orthogonalLoop=1;entryDx=0;entryDy=0;exitDx=0;exitDy=0;" target="ent_experiments_r11" value="used in">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel_experiments_results" edge="1" parent="1" source="ent_experiments_r13" style="edgeStyle=entityRelationEdgeStyle;fontSize=11;html=1;endArrow=ERzeroToOne;startArrow=ERone;rounded=0;exitX=1;exitY=0.5;entryX=0;entryY=0.5;jettySize=30;orthogonalLoop=1;exitDx=0;exitDy=0;entryDx=0;entryDy=0;" target="ent_results_r4" value="produces">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="595" y="1300" as="sourcePoint" />
+            <mxPoint x="675" y="1410" as="targetPoint" />
+          </mxGeometry>
         </mxCell>
       </root>
     </mxGraphModel>

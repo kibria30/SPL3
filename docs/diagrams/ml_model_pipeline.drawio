@@ -1,0 +1,118 @@
+<mxfile host="app.diagrams.net">
+  <diagram id="ai-model-pipeline" name="AI Model Pipeline">
+    <mxGraphModel dx="2100" dy="1064" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1050" pageHeight="1090" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="p_start" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#000000;fontSize=12;" value="" vertex="1">
+          <mxGeometry height="30" width="30" x="585" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="p_dataset" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=12;" value="Select Dataset (system-curated or user-uploaded CSV)" vertex="1">
+          <mxGeometry height="60" width="280" x="460" y="110" as="geometry" />
+        </mxCell>
+        <mxCell id="p_split" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=12;" value="Configure Train / Test Split (period-based: test_periods, input_periods)" vertex="1">
+          <mxGeometry height="60" width="280" x="460" y="200" as="geometry" />
+        </mxCell>
+        <mxCell id="p_elig" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;" value="Check Eligibility (compute_eligibility): classical models always eligible; trained models need enough train + val data, else excluded from the selectable list" vertex="1">
+          <mxGeometry height="80" width="280" x="460" y="290" as="geometry" />
+        </mxCell>
+        <mxCell id="p_model" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=12;" value="Select Model (from eligible models only)" vertex="1">
+          <mxGeometry height="60" width="280" x="460" y="400" as="geometry" />
+        </mxCell>
+        <mxCell id="p_decfamily" parent="1" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;" value="Model Family?" vertex="1">
+          <mxGeometry height="80" width="200" x="500" y="490" as="geometry" />
+        </mxCell>
+        <mxCell id="p_c1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=12;" value="Classical (Tensor-AR / SARIMA / ETS) Fit on full training data (eval_input aligns forecast origin)" vertex="1">
+          <mxGeometry height="90" width="280" x="130" y="610" as="geometry" />
+        </mxCell>
+        <mxCell id="p_t1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#b0e3e6;strokeColor=#0e8088;fontSize=12;" value="Trained (DLinear / iTransformer / TimeXer / TimeMixer) Train / validation split gradient-trained over epochs" vertex="1">
+          <mxGeometry height="90" width="280" x="690" y="610" as="geometry" />
+        </mxCell>
+        <mxCell id="p_run" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;" value="Run Test: predict(eval_input) -&gt; forecast" vertex="1">
+          <mxGeometry height="60" width="280" x="460" y="750" as="geometry" />
+        </mxCell>
+        <mxCell id="p_metrics" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=12;" value="Calculate Metrics: R2, MSE, MAE, RMSE, MASE, sMAPE (per feature + averaged)" vertex="1">
+          <mxGeometry height="70" width="280" x="460" y="840" as="geometry" />
+        </mxCell>
+        <mxCell id="p_results" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=12;" value="Results Available (charts, tables, comparison)" vertex="1">
+          <mxGeometry height="60" width="280" x="460" y="940" as="geometry" />
+        </mxCell>
+        <mxCell id="p_end" parent="1" style="ellipse;shape=doubleEllipse;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#000000;fontSize=12;" value="" vertex="1">
+          <mxGeometry height="30" width="30" x="585" y="1030" as="geometry" />
+        </mxCell>
+        <mxCell id="pe1" edge="1" parent="1" source="p_start" style="html=1;endArrow=block;endFill=1;endSize=8;" target="p_dataset">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="pe2" edge="1" parent="1" source="p_dataset" style="html=1;endArrow=block;endFill=1;endSize=8;" target="p_split">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="pe3" edge="1" parent="1" source="p_split" style="html=1;endArrow=block;endFill=1;endSize=8;" target="p_elig">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="pe4" edge="1" parent="1" source="p_elig" style="html=1;endArrow=block;endFill=1;endSize=8;" target="p_model">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="pe4b" edge="1" parent="1" source="p_model" style="html=1;endArrow=block;endFill=1;endSize=8;" target="p_decfamily">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="pe5" edge="1" parent="1" source="p_decfamily" style="html=1;endArrow=block;endFill=1;endSize=8;edgeStyle=orthogonalEdgeStyle;rounded=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="p_c1" value="Classical">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="pe6" edge="1" parent="1" source="p_decfamily" style="html=1;endArrow=block;endFill=1;endSize=8;edgeStyle=orthogonalEdgeStyle;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="p_t1" value="Trained">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="pe7" edge="1" parent="1" source="p_c1" style="html=1;endArrow=block;endFill=1;endSize=8;edgeStyle=orthogonalEdgeStyle;rounded=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="p_run">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="pe8" edge="1" parent="1" source="p_t1" style="html=1;endArrow=block;endFill=1;endSize=8;edgeStyle=orthogonalEdgeStyle;rounded=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" target="p_run">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="pe9" edge="1" parent="1" source="p_run" style="html=1;endArrow=block;endFill=1;endSize=8;" target="p_metrics">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="pe10" edge="1" parent="1" source="p_metrics" style="html=1;endArrow=block;endFill=1;endSize=8;" target="p_results">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="pe11" edge="1" parent="1" source="p_results" style="html=1;endArrow=block;endFill=1;endSize=8;" target="p_end">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="PehYTZClvihofPbjq27T-1" connectable="0" parent="1" style="group" value="" vertex="1">
+          <mxGeometry height="176" width="230" x="130" y="250" as="geometry" />
+        </mxCell>
+        <mxCell id="p_legendBox" parent="PehYTZClvihofPbjq27T-1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#999999;verticalAlign=top;align=left;spacingTop=6;spacingLeft=8;fontStyle=1;fontSize=12;" value="Legend" vertex="1">
+          <mxGeometry height="170" width="230" as="geometry" />
+        </mxCell>
+        <mxCell id="p_legsw0" parent="PehYTZClvihofPbjq27T-1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" value="" vertex="1">
+          <mxGeometry height="20" width="20" x="12" y="35" as="geometry" />
+        </mxCell>
+        <mxCell id="p_legtx0" parent="PehYTZClvihofPbjq27T-1" style="text;whiteSpace=wrap;align=left;verticalAlign=middle;fontSize=11;" value="User selection" vertex="1">
+          <mxGeometry height="24" width="180" x="42" y="32" as="geometry" />
+        </mxCell>
+        <mxCell id="p_legsw1" parent="PehYTZClvihofPbjq27T-1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="" vertex="1">
+          <mxGeometry height="20" width="20" x="12" y="65" as="geometry" />
+        </mxCell>
+        <mxCell id="p_legtx1" parent="PehYTZClvihofPbjq27T-1" style="text;whiteSpace=wrap;align=left;verticalAlign=middle;fontSize=11;" value="System / data prep" vertex="1">
+          <mxGeometry height="24" width="180" x="42" y="62" as="geometry" />
+        </mxCell>
+        <mxCell id="p_legsw2" parent="PehYTZClvihofPbjq27T-1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" value="" vertex="1">
+          <mxGeometry height="20" width="20" x="12" y="95" as="geometry" />
+        </mxCell>
+        <mxCell id="p_legtx2" parent="PehYTZClvihofPbjq27T-1" style="text;whiteSpace=wrap;align=left;verticalAlign=middle;fontSize=11;" value="Classical model fit" vertex="1">
+          <mxGeometry height="24" width="180" x="42" y="92" as="geometry" />
+        </mxCell>
+        <mxCell id="p_legsw3" parent="PehYTZClvihofPbjq27T-1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#b0e3e6;strokeColor=#0e8088;" value="" vertex="1">
+          <mxGeometry height="20" width="20" x="12" y="125" as="geometry" />
+        </mxCell>
+        <mxCell id="p_legtx3" parent="PehYTZClvihofPbjq27T-1" style="text;whiteSpace=wrap;align=left;verticalAlign=middle;fontSize=11;" value="Trained model fit" vertex="1">
+          <mxGeometry height="24" width="180" x="42" y="122" as="geometry" />
+        </mxCell>
+        <mxCell id="p_legsw4" parent="PehYTZClvihofPbjq27T-1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" value="" vertex="1">
+          <mxGeometry height="20" width="20" x="12" y="155" as="geometry" />
+        </mxCell>
+        <mxCell id="p_legtx4" parent="PehYTZClvihofPbjq27T-1" style="text;whiteSpace=wrap;align=left;verticalAlign=middle;fontSize=11;" value="Evaluation / metrics" vertex="1">
+          <mxGeometry height="24" width="180" x="42" y="152" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
