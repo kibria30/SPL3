@@ -3,7 +3,7 @@ import shutil
 from collections import defaultdict
 
 import numpy as np
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
 from app.api.datasets import _get_visible_dataset_or_404
@@ -33,6 +33,19 @@ from app.services.experiment_runner import dispatch_experiment
 router = APIRouter(prefix="/experiments", tags=["experiments"])
 
 
+def _validate_selected_columns(dataset: Dataset, requested: list[str] | None) -> list[str] | None:
+    """Returns the requested subset (deduped, in dataset order), or None when it is the whole
+    dataset, so "all columns" stays a single canonical value.
+    """
+    if requested is None:
+        return None
+    unknown = set(requested) - set(dataset.selected_columns)
+    if unknown:
+        raise HTTPException(status_code=422, detail=f"Unknown column(s) for this dataset: {sorted(unknown)}")
+    chosen = [c for c in dataset.selected_columns if c in set(requested)]
+    return None if len(chosen) == len(dataset.selected_columns) else chosen
+
+
 def _owned_experiment_or_404(experiment_id: int, user: User, db: Session) -> Experiment:
     experiment = db.get(Experiment, experiment_id)
     if experiment is None:
@@ -45,7 +58,7 @@ def _owned_experiment_or_404(experiment_id: int, user: User, db: Session) -> Exp
 def _create_experiment_row(
     db: Session, user: User, dataset: Dataset, model: ForecastingModel, elig: SplitEligibility,
     experiment_name: str, test_periods: int, input_periods: int, val_ratio: float, hyperparams: dict,
-    task_type: str = "forecasting",
+    task_type: str = "forecasting", selected_columns: list[str] | None = None,
 ) -> Experiment:
     experiment = Experiment(
         user_id=user.id, model_id=model.id, dataset_id=dataset.id,
@@ -53,7 +66,7 @@ def _create_experiment_row(
         test_periods=test_periods, input_periods=input_periods,
         output_periods=test_periods - input_periods,
         period_length=dataset.period_length, seq_len=elig.seq_len, pred_len=elig.pred_len,
-        val_ratio=val_ratio, hyperparams=hyperparams,
+        val_ratio=val_ratio, hyperparams=hyperparams, selected_columns=selected_columns,
         has_train_data=elig.has_train_data, status=ExperimentStatus.pending,
     )
     db.add(experiment)
@@ -83,6 +96,8 @@ def create_comparison_batch(
     except ValueError as e:
         raise HTTPException(status_code=422, detail=str(e))
 
+    selected_columns = _validate_selected_columns(dataset, payload.selected_columns)
+
     known_models = {
         m.slug: m
         for m in db.query(ForecastingModel).filter(ForecastingModel.slug.in_(payload.model_slugs)).all()
@@ -106,6 +121,7 @@ def create_comparison_batch(
             experiment_name=f"{payload.experiment_name_prefix} — {model.name}",
             test_periods=payload.test_periods, input_periods=payload.input_periods,
             val_ratio=payload.val_ratio, hyperparams={}, task_type=payload.task_type,
+            selected_columns=selected_columns,
         )
         created.append(experiment)
 
@@ -118,9 +134,11 @@ def create_comparison_batch(
 @router.get("/compare", response_model=ComparisonViewOut)
 def get_comparison_view(
     dataset_id: int, test_periods: int, input_periods: int,
+    columns: list[str] | None = Query(default=None),
     user: User = Depends(get_current_user), db: Session = Depends(get_db),
 ):
     dataset = _get_visible_dataset_or_404(dataset_id, user, db)
+    selected_columns = _validate_selected_columns(dataset, columns)
 
     rows = (
         db.query(Experiment, ForecastingModel, Result)
@@ -136,6 +154,8 @@ def get_comparison_view(
         .order_by(Experiment.created_at.asc())
         .all()
     )
+    # Only runs on this exact column set belong together (None = all dataset columns).
+    rows = [r for r in rows if r[0].selected_columns == selected_columns]
 
     entries = [
         ComparisonEntryOut(
@@ -152,7 +172,7 @@ def get_comparison_view(
     return ComparisonViewOut(
         dataset_id=dataset.id, dataset_name=dataset.name, dataset_slug=dataset.slug,
         test_periods=test_periods, input_periods=input_periods, period_length=dataset.period_length,
-        seq_len=seq_len, pred_len=pred_len, entries=entries,
+        seq_len=seq_len, pred_len=pred_len, selected_columns=selected_columns, entries=entries,
     )
 
 
@@ -168,11 +188,14 @@ def list_comparison_groups(user: User = Depends(get_current_user), db: Session =
 
     groups: dict[tuple, list] = defaultdict(list)
     for experiment, model, dataset in rows:
-        key = (dataset.id, experiment.test_periods, experiment.input_periods, experiment.period_length)
+        key = (
+            dataset.id, experiment.test_periods, experiment.input_periods, experiment.period_length,
+            tuple(experiment.selected_columns) if experiment.selected_columns is not None else None,
+        )
         groups[key].append((experiment, model, dataset))
 
     out: list[ComparisonGroupOut] = []
-    for (dataset_id, test_periods, input_periods, period_length), members in groups.items():
+    for (dataset_id, test_periods, input_periods, period_length, group_columns), members in groups.items():
         model_slugs = sorted({m.slug for _, m, _ in members})
         if len(model_slugs) < 2:
             continue
@@ -182,6 +205,7 @@ def list_comparison_groups(user: User = Depends(get_current_user), db: Session =
         out.append(ComparisonGroupOut(
             dataset_id=dataset_id, dataset_name=dataset_name,
             test_periods=test_periods, input_periods=input_periods, period_length=period_length,
+            selected_columns=list(group_columns) if group_columns is not None else None,
             model_slugs=model_slugs, experiment_count=len(members), completed_count=completed_count,
             latest_created_at=latest_created_at,
         ))
@@ -200,6 +224,8 @@ def create_experiment(
     dataset = _get_visible_dataset_or_404(payload.dataset_id, user, db)
     if dataset.status != DatasetStatus.ready:
         raise HTTPException(status_code=422, detail="Dataset is not ready (columns not yet selected).")
+
+    selected_columns = _validate_selected_columns(dataset, payload.selected_columns)
 
     model = db.query(ForecastingModel).filter(ForecastingModel.slug == payload.model_slug).first()
     if model is None:
@@ -221,6 +247,7 @@ def create_experiment(
         experiment_name=payload.experiment_name,
         test_periods=payload.test_periods, input_periods=payload.input_periods,
         val_ratio=payload.val_ratio, hyperparams=payload.hyperparams, task_type=payload.task_type,
+        selected_columns=selected_columns,
     )
 
 
@@ -280,4 +307,4 @@ def get_series(experiment_id: int, user: User = Depends(get_current_user), db: S
     predicted = np.load(result.predicted_sequence_path)
     dataset = db.get(Dataset, experiment.dataset_id)
 
-    return SeriesOut(feature_names=dataset.selected_columns, actual=actual.tolist(), predicted=predicted.tolist())
+    return SeriesOut(feature_names=experiment.selected_columns or dataset.selected_columns, actual=actual.tolist(), predicted=predicted.tolist())

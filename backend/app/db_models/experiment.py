@@ -41,6 +41,10 @@ class Experiment(Base):
     val_ratio: Mapped[float] = mapped_column(Float, default=0.2)  # only meaningful for "trained" family
     hyperparams: Mapped[dict] = mapped_column(JSONB, default=dict)  # overrides Model.default_hyperparams
 
+    # Subset of Dataset.selected_columns this run forecasts on; NULL = all of them (also the
+    # value for experiments created before this column existed).
+    selected_columns: Mapped[list | None] = mapped_column(JSONB, nullable=True)
+
     has_train_data: Mapped[bool] = mapped_column(default=False)
     dataset_snapshot_meta: Mapped[dict | None] = mapped_column(JSONB, nullable=True)  # live-weather pin, etc.
 

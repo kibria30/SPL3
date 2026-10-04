@@ -102,6 +102,8 @@ def run_experiment(experiment_id: int) -> None:
         model_meta = db.get(ForecastingModel, experiment.model_id)
 
         df = load_dataset_dataframe(dataset)
+        if experiment.selected_columns:
+            df = df[experiment.selected_columns]
         values = df.values.astype(np.float32)
         n_vars = values.shape[1]
 

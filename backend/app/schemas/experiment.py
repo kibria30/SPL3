@@ -14,6 +14,7 @@ class ExperimentCreate(BaseModel):
     input_periods: int = Field(ge=5, le=20)
     val_ratio: float = Field(default=0.2, gt=0, lt=1)
     hyperparams: dict = Field(default_factory=dict)
+    selected_columns: list[str] | None = Field(default=None, min_length=1)  # None = all dataset columns
 
 
 class ExperimentOut(BaseModel):
@@ -31,6 +32,7 @@ class ExperimentOut(BaseModel):
     pred_len: int
     val_ratio: float
     hyperparams: dict
+    selected_columns: list[str] | None
     has_train_data: bool
     status: ExperimentStatus
     error_message: str | None
@@ -70,6 +72,7 @@ class ExperimentBatchCreate(BaseModel):
     input_periods: int = Field(ge=5, le=20)
     val_ratio: float = Field(default=0.2, gt=0, lt=1)
     model_slugs: list[str] = Field(min_length=1)
+    selected_columns: list[str] | None = Field(default=None, min_length=1)
 
 
 class SkippedModelOut(BaseModel):
@@ -103,6 +106,7 @@ class ComparisonViewOut(BaseModel):
     period_length: int
     seq_len: int
     pred_len: int
+    selected_columns: list[str] | None
     entries: list[ComparisonEntryOut]
 
 
@@ -112,6 +116,7 @@ class ComparisonGroupOut(BaseModel):
     test_periods: int
     input_periods: int
     period_length: int
+    selected_columns: list[str] | None
     model_slugs: list[str]
     experiment_count: int
     completed_count: int
