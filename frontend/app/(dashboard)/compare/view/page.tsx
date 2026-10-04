@@ -23,6 +23,7 @@ function ComparisonViewContent() {
   const datasetId = Number(params.get("dataset_id"));
   const testPeriods = Number(params.get("test_periods"));
   const inputPeriods = Number(params.get("input_periods"));
+  const columnsKey = JSON.stringify(params.getAll("columns"));  // stable dep; [] = all columns
 
   const [view, setView] = useState<ComparisonView | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -33,7 +34,8 @@ function ComparisonViewContent() {
     if (!datasetId || !testPeriods || !inputPeriods) return;
 
     function load() {
-      getComparisonView(datasetId, testPeriods, inputPeriods)
+      const columns: string[] = JSON.parse(columnsKey);
+      getComparisonView(datasetId, testPeriods, inputPeriods, columns.length ? columns : null)
         .then((v) => {
           setView(v);
           const anyActive = v.entries.some(
@@ -51,7 +53,7 @@ function ComparisonViewContent() {
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
-  }, [datasetId, testPeriods, inputPeriods]);
+  }, [datasetId, testPeriods, inputPeriods, columnsKey]);
 
   // Fetch each completed entry's actual/predicted series once, as they become available.
   useEffect(() => {

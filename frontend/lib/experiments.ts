@@ -17,6 +17,7 @@ export interface Experiment {
   pred_len: number;
   val_ratio: number;
   hyperparams: Record<string, unknown>;
+  selected_columns: string[] | null;
   has_train_data: boolean;
   status: ExperimentStatus;
   error_message: string | null;
@@ -96,6 +97,7 @@ export interface CreateExperimentPayload {
   input_periods: number;
   val_ratio?: number;
   hyperparams?: Record<string, unknown>;
+  selected_columns?: string[] | null;
 }
 
 export function createExperiment(payload: CreateExperimentPayload) {

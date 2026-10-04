@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { getComparisonGroups, type ComparisonGroup } from "@/lib/compare";
+import { comparisonQuery, getComparisonGroups, type ComparisonGroup } from "@/lib/compare";
 
 export default function ComparePage() {
   const [groups, setGroups] = useState<ComparisonGroup[] | null>(null);
@@ -53,8 +53,8 @@ export default function ComparePage() {
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {groups.map((g) => (
             <Link
-              key={`${g.dataset_id}-${g.test_periods}-${g.input_periods}-${g.period_length}`}
-              href={`/compare/view?dataset_id=${g.dataset_id}&test_periods=${g.test_periods}&input_periods=${g.input_periods}`}
+              key={`${g.dataset_id}-${g.test_periods}-${g.input_periods}-${g.period_length}-${g.selected_columns?.join("|") ?? "all"}`}
+              href={`/compare/view?${comparisonQuery(g.dataset_id, g.test_periods, g.input_periods, g.selected_columns)}`}
               className="rounded-lg border border-black/10 dark:border-white/10 bg-white dark:bg-zinc-900 p-4 hover:border-black/20 dark:hover:border-white/20"
             >
               <p className="font-medium text-zinc-900 dark:text-zinc-50">{g.dataset_name}</p>
