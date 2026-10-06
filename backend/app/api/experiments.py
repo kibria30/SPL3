@@ -55,6 +55,20 @@ def _owned_experiment_or_404(experiment_id: int, user: User, db: Session) -> Exp
     return experiment
 
 
+def _purge_experiment(db: Session, experiment: Experiment) -> None:
+    """Deletes the experiment's Result row, stored artifacts and the row itself (caller commits)."""
+    result = db.query(Result).filter(Result.experiment_id == experiment.id).first()
+    if result is not None:
+        db.delete(result)
+        db.flush()  # no ORM relationship orders these deletes, so the result must go first
+
+    exp_dir = settings.storage_dir / "experiments" / str(experiment.id)
+    if os.path.isdir(exp_dir):
+        shutil.rmtree(exp_dir)
+
+    db.delete(experiment)
+
+
 def _create_experiment_row(
     db: Session, user: User, dataset: Dataset, model: ForecastingModel, elig: SplitEligibility,
     experiment_name: str, test_periods: int, input_periods: int, val_ratio: float, hyperparams: dict,
@@ -176,6 +190,41 @@ def get_comparison_view(
     )
 
 
+@router.delete("/compare", status_code=status.HTTP_204_NO_CONTENT)
+def delete_comparison(
+    dataset_id: int, test_periods: int, input_periods: int,
+    columns: list[str] | None = Query(default=None),
+    user: User = Depends(get_current_user), db: Session = Depends(get_db),
+):
+    """Deletes every experiment of the user's that belongs to this comparison group."""
+    dataset = _get_visible_dataset_or_404(dataset_id, user, db)
+    selected_columns = _validate_selected_columns(dataset, columns)
+
+    experiments = (
+        db.query(Experiment)
+        .filter(
+            Experiment.user_id == user.id,
+            Experiment.dataset_id == dataset_id,
+            Experiment.test_periods == test_periods,
+            Experiment.input_periods == input_periods,
+            Experiment.period_length == dataset.period_length,
+        )
+        .all()
+    )
+    experiments = [e for e in experiments if e.selected_columns == selected_columns]
+    if not experiments:
+        raise HTTPException(status_code=404, detail="Comparison not found")
+    if any(e.status in (ExperimentStatus.pending, ExperimentStatus.running) for e in experiments):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Cannot delete a comparison while some of its experiments are pending or running.",
+        )
+
+    for experiment in experiments:
+        _purge_experiment(db, experiment)
+    db.commit()
+
+
 @router.get("/compare/groups", response_model=list[ComparisonGroupOut])
 def list_comparison_groups(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     rows = (
@@ -275,15 +324,7 @@ def delete_experiment(experiment_id: int, user: User = Depends(get_current_user)
             detail="Cannot delete an experiment that is still pending or running.",
         )
 
-    result = db.query(Result).filter(Result.experiment_id == experiment.id).first()
-    if result is not None:
-        db.delete(result)
-
-    exp_dir = settings.storage_dir / "experiments" / str(experiment.id)
-    if os.path.isdir(exp_dir):
-        shutil.rmtree(exp_dir)
-
-    db.delete(experiment)
+    _purge_experiment(db, experiment)
     db.commit()
 
 

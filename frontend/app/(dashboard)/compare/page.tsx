@@ -2,11 +2,24 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { comparisonQuery, getComparisonGroups, type ComparisonGroup } from "@/lib/compare";
+import { comparisonQuery, deleteComparison, getComparisonGroups, type ComparisonGroup } from "@/lib/compare";
 
 export default function ComparePage() {
   const [groups, setGroups] = useState<ComparisonGroup[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  async function handleDelete(g: ComparisonGroup) {
+    const confirmed = confirm(
+      `Delete ${g.experiment_count} experiments compared on "${g.dataset_name}"?\nThis cannot be undone.`
+    );
+    if (!confirmed) return;
+    try {
+      await deleteComparison(g.dataset_id, g.test_periods, g.input_periods, g.selected_columns);
+      setGroups((prev) => prev && prev.filter((x) => x !== g));
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Delete failed");
+    }
+  }
 
   useEffect(() => {
     getComparisonGroups()
@@ -71,10 +84,22 @@ export default function ComparePage() {
                   </span>
                 ))}
               </div>
-              <p className="mt-3 text-xs text-zinc-500 dark:text-zinc-400">
-                {g.completed_count}/{g.experiment_count} completed &middot; last run{" "}
-                {new Date(g.latest_created_at).toLocaleDateString()}
-              </p>
+              <div className="mt-3 flex items-center justify-between">
+                <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                  {g.completed_count}/{g.experiment_count} completed &middot; last run{" "}
+                  {new Date(g.latest_created_at).toLocaleDateString()}
+                </p>
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleDelete(g);
+                  }}
+                  className="text-xs font-medium text-red-600 hover:underline"
+                >
+                  Delete
+                </button>
+              </div>
             </Link>
           ))}
         </div>

@@ -88,3 +88,11 @@ export function getComparisonView(
 export function getComparisonGroups() {
   return apiFetch<ComparisonGroup[]>("/experiments/compare/groups");
 }
+
+export function deleteComparison(
+  datasetId: number, testPeriods: number, inputPeriods: number, columns: string[] | null = null
+) {
+  return apiFetch<void>(`/experiments/compare?${comparisonQuery(datasetId, testPeriods, inputPeriods, columns)}`, {
+    method: "DELETE",
+  });
+}

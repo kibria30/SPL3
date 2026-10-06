@@ -1,11 +1,12 @@
 "use client";
 
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import StatusBadge from "@/components/StatusBadge";
 import ModelComparisonChart from "@/components/ModelComparisonChart";
 import EfficiencyBarChart from "@/components/EfficiencyBarChart";
-import { getComparisonView, type ComparisonView } from "@/lib/compare";
+import { deleteComparison, getComparisonView, type ComparisonView } from "@/lib/compare";
+import { ApiError } from "@/lib/api";
 import { getExperimentSeries, type SeriesData } from "@/lib/experiments";
 
 const METRIC_COLUMNS = ["R2", "MSE", "MAE", "RMSE", "MASE", "sMAPE"] as const;
@@ -20,6 +21,7 @@ export default function ComparisonViewPage() {
 
 function ComparisonViewContent() {
   const params = useSearchParams();
+  const router = useRouter();
   const datasetId = Number(params.get("dataset_id"));
   const testPeriods = Number(params.get("test_periods"));
   const inputPeriods = Number(params.get("input_periods"));
@@ -27,6 +29,8 @@ function ComparisonViewContent() {
 
   const [view, setView] = useState<ComparisonView | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
   const [seriesByExperimentId, setSeriesByExperimentId] = useState<Record<number, SeriesData>>({});
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -122,9 +126,44 @@ function ComparisonViewContent() {
   if (error) return <p className="text-sm text-red-600">{error}</p>;
   if (!view) return <p className="text-sm text-zinc-500 dark:text-zinc-400">Loading...</p>;
 
+  const isLive = view.entries.some(
+    (e) => e.experiment.status === "pending" || e.experiment.status === "running"
+  );
+
+  async function handleDelete() {
+    if (!view) return;
+    const confirmed = confirm(
+      `Delete ${view.entries.length} experiments compared on "${view.dataset_name}"?\nThis cannot be undone.`
+    );
+    if (!confirmed) return;
+
+    setDeleting(true);
+    setDeleteError(null);
+    if (intervalRef.current) clearInterval(intervalRef.current);
+    try {
+      const columns: string[] = JSON.parse(columnsKey);
+      await deleteComparison(datasetId, testPeriods, inputPeriods, columns.length ? columns : null);
+      router.push("/compare");
+    } catch (e) {
+      setDeleting(false);
+      setDeleteError(e instanceof ApiError ? e.message : e instanceof Error ? e.message : "Delete failed");
+    }
+  }
+
   return (
     <div>
-      <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-50 mb-1">{view.dataset_name}</h1>
+      <div className="mb-1 flex items-center justify-between">
+        <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-50">{view.dataset_name}</h1>
+        <button
+          onClick={handleDelete}
+          disabled={deleting || isLive}
+          title={isLive ? "Cannot delete while experiments are pending or running" : undefined}
+          className="rounded-md border border-red-600 text-red-600 px-3 py-1.5 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {deleting ? "Deleting..." : "Delete comparison"}
+        </button>
+      </div>
+      {deleteError && <p className="mb-2 text-sm text-red-600">{deleteError}</p>}
       <p className="mb-6 text-sm text-zinc-500 dark:text-zinc-400">
         input {view.input_periods}p / output {view.test_periods - view.input_periods}p (test {view.test_periods}p)
         &middot; seq_len {view.seq_len} &middot; pred_len {view.pred_len} &middot; {view.entries.length} models
