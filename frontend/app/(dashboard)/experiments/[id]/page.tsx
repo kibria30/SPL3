@@ -9,6 +9,7 @@ import {
   getExperiment,
   getExperimentResult,
   getExperimentSeries,
+  type AnomalyConfig,
   type Experiment,
   type ExperimentResult,
   type SeriesData,
@@ -75,6 +76,96 @@ function TrainingProgress({ experiment }: { experiment: Experiment }) {
   );
 }
 
+function AnomalyPanel({
+  experiment, series, onChange,
+}: {
+  experiment: Experiment;
+  series: SeriesData;
+  onChange: (cfg: AnomalyConfig) => void;
+}) {
+  const anomaly = series.anomaly!;
+  const saved = (experiment.hyperparams.anomaly ?? {}) as Partial<AnomalyConfig>;
+  const [mode, setMode] = useState<"auto" | "manual">(saved.mode ?? "auto");
+  const [k, setK] = useState(saved.k ?? 3);
+  const [threshold, setThreshold] = useState(saved.threshold ?? 1);
+
+  function apply(next: Partial<{ mode: "auto" | "manual"; k: number; threshold: number }>) {
+    const cfg = { mode, k, threshold, ...next };
+    if (cfg.mode === "manual" && !(cfg.threshold > 0)) return;
+    if (!(cfg.k > 0)) return;
+    onChange(cfg);
+  }
+
+  const total = series.actual.length * series.feature_names.length;
+  const flagged: { step: number; feature: string; actual: number; predicted: number; residual: number }[] = [];
+  anomaly.flags.forEach((row, i) =>
+    row.forEach((f, j) => {
+      if (f) flagged.push({
+        step: i, feature: series.feature_names[j], actual: series.actual[i][j],
+        predicted: series.predicted[i][j], residual: anomaly.residuals[i][j],
+      });
+    })
+  );
+  flagged.sort((a, b) => b.residual - a.residual);
+
+  const inputClass = "w-24 rounded-md border border-black/10 dark:border-white/15 bg-transparent px-2 py-1 text-sm";
+
+  return (
+    <div className="mb-8 space-y-4">
+      <div className="flex flex-wrap items-center gap-4 text-sm text-zinc-700 dark:text-zinc-300">
+        <span className="font-medium text-[#d03b3b]">
+          {anomaly.count} of {total} points flagged as probable anomalies
+        </span>
+        <label className="flex items-center gap-1">
+          <input type="radio" checked={mode === "auto"} onChange={() => { setMode("auto"); apply({ mode: "auto" }); }} />
+          Auto, k =
+          <input
+            type="number" min={0.5} max={20} step={0.5} value={k} className={inputClass}
+            onChange={(e) => { setK(Number(e.target.value)); apply({ mode: "auto", k: Number(e.target.value) }); setMode("auto"); }}
+          />
+        </label>
+        <label className="flex items-center gap-1">
+          <input type="radio" checked={mode === "manual"} onChange={() => { setMode("manual"); apply({ mode: "manual" }); }} />
+          Manual threshold =
+          <input
+            type="number" min={0.01} step={0.1} value={threshold} className={inputClass}
+            onChange={(e) => { setThreshold(Number(e.target.value)); apply({ mode: "manual", threshold: Number(e.target.value) }); setMode("manual"); }}
+          />
+        </label>
+      </div>
+      <p className="text-xs text-zinc-500 dark:text-zinc-400">
+        Thresholds (normalized units):{" "}
+        {series.feature_names.map((n, j) => `${n} ${anomaly.thresholds[j].toFixed(3)}`).join(" · ")}.
+        Changes here preview the flags; they are not saved to the experiment.
+      </p>
+      {flagged.length > 0 && (
+        <div className="max-h-64 overflow-auto rounded-lg border border-black/10 dark:border-white/10">
+          <table className="min-w-full divide-y divide-black/10 dark:divide-white/10 text-sm">
+            <thead className="bg-zinc-100 dark:bg-zinc-900">
+              <tr>
+                {["Step", "Feature", "Actual", "Predicted", "|Residual|"].map((h) => (
+                  <th key={h} className="px-3 py-2 text-left font-medium text-zinc-600 dark:text-zinc-300">{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-black/10 dark:divide-white/10 bg-white dark:bg-zinc-950 text-zinc-700 dark:text-zinc-300">
+              {flagged.map((f) => (
+                <tr key={`${f.step}-${f.feature}`}>
+                  <td className="px-3 py-1.5">{f.step}</td>
+                  <td className="px-3 py-1.5">{f.feature}</td>
+                  <td className="px-3 py-1.5">{f.actual.toFixed(3)}</td>
+                  <td className="px-3 py-1.5">{f.predicted.toFixed(3)}</td>
+                  <td className="px-3 py-1.5">{f.residual.toFixed(3)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function ExperimentDetailPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
@@ -124,6 +215,12 @@ export default function ExperimentDetailPage() {
 
   if (error) return <p className="text-sm text-red-600">{error}</p>;
   if (!experiment) return <p className="text-sm text-zinc-500 dark:text-zinc-400">Loading...</p>;
+
+  const isAnomaly = experiment.task_type === "anomaly_detection";
+
+  function previewAnomaly(cfg: AnomalyConfig) {
+    getExperimentSeries(id, cfg).then(setSeries).catch(() => {});
+  }
 
   const isLive = experiment.status === "pending" || experiment.status === "running";
 
@@ -195,13 +292,23 @@ export default function ExperimentDetailPage() {
         <>
           {series && (
             <>
-              <h2 className="text-lg font-medium text-zinc-900 dark:text-zinc-50 mb-2">Actual vs. predicted</h2>
-              <div className="mb-8">
-                <ForecastChart featureNames={series.feature_names} actual={series.actual} predicted={series.predicted} />
+              <h2 className="text-lg font-medium text-zinc-900 dark:text-zinc-50 mb-2">
+                {isAnomaly ? "Anomaly detection" : "Actual vs. predicted"}
+              </h2>
+              <div className="mb-4">
+                <ForecastChart
+                  featureNames={series.feature_names} actual={series.actual} predicted={series.predicted}
+                  anomaly={series.anomaly}
+                />
               </div>
+              {isAnomaly && series.anomaly && (
+                <AnomalyPanel experiment={experiment} series={series} onChange={previewAnomaly} />
+              )}
+              {!isAnomaly && <div className="mb-4" />}
             </>
           )}
 
+          {!isAnomaly && <>
           <h2 className="text-lg font-medium text-zinc-900 dark:text-zinc-50 mb-2">Metrics</h2>
           <p className="mb-2 text-xs text-zinc-500 dark:text-zinc-400">
             Training time {result.training_time_seconds.toFixed(2)}s
@@ -241,6 +348,7 @@ export default function ExperimentDetailPage() {
               </tbody>
             </table>
           </div>
+          </>}
         </>
       )}
     </div>

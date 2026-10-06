@@ -49,10 +49,26 @@ export interface ExperimentResult {
   predicted_sequence_path: string;
 }
 
+export interface AnomalyConfig {
+  mode: "auto" | "manual";
+  k: number;
+  threshold?: number | null; // manual mode, z-scored units
+}
+
+export interface AnomalyData {
+  mode: string;
+  k: number;
+  thresholds: number[]; // per feature
+  residuals: number[][];
+  flags: boolean[][];
+  count: number;
+}
+
 export interface SeriesData {
   feature_names: string[];
   actual: number[][];
   predicted: number[][];
+  anomaly: AnomalyData | null;
 }
 
 export interface SplitPreview {
@@ -79,8 +95,15 @@ export function getExperimentResult(id: number) {
   return apiFetch<ExperimentResult>(`/experiments/${id}/result`);
 }
 
-export function getExperimentSeries(id: number) {
-  return apiFetch<SeriesData>(`/experiments/${id}/series`);
+export function getExperimentSeries(id: number, override?: AnomalyConfig) {
+  const qs = new URLSearchParams();
+  if (override) {
+    qs.set("mode", override.mode);
+    qs.set("k", String(override.k));
+    if (override.mode === "manual" && override.threshold != null) qs.set("threshold", String(override.threshold));
+  }
+  const suffix = qs.toString() ? `?${qs}` : "";
+  return apiFetch<SeriesData>(`/experiments/${id}/series${suffix}`);
 }
 
 export function getSplitPreview(datasetId: number, testPeriods: number, inputPeriods: number) {
@@ -93,6 +116,8 @@ export interface CreateExperimentPayload {
   dataset_id: number;
   model_slug: string;
   experiment_name: string;
+  task_type?: "forecasting" | "anomaly_detection";
+  anomaly?: AnomalyConfig;
   test_periods: number;
   input_periods: number;
   val_ratio?: number;

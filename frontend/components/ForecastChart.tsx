@@ -4,6 +4,9 @@ import { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import type { Data, Layout } from "plotly.js";
 import { getPaletteMode } from "@/lib/palette";
+import type { AnomalyData } from "@/lib/experiments";
+
+const ANOMALY_COLOR = "#d03b3b"; // fixed status 'critical' red, distinct from any model color
 
 // plotly.js touches `window` at import time -- must be client-only, no SSR.
 const Plot = dynamic(() => import("react-plotly.js"), { ssr: false });
@@ -15,9 +18,10 @@ interface ForecastChartProps {
   featureNames: string[];
   actual: number[][]; // (pred_len, n_vars)
   predicted: number[][];
+  anomaly?: AnomalyData | null; // anomaly-detection experiments: mark flagged points
 }
 
-export default function ForecastChart({ featureNames, actual, predicted }: ForecastChartProps) {
+export default function ForecastChart({ featureNames, actual, predicted, anomaly }: ForecastChartProps) {
   const [featureIndex, setFeatureIndex] = useState(0);
   const [isDark, setIsDark] = useState(false);
 
@@ -47,6 +51,28 @@ export default function ForecastChart({ featureNames, actual, predicted }: Forec
       },
     ];
 
+    if (anomaly) {
+      const t = anomaly.thresholds[featureIndex];
+      const band = (sign: number) => predictedY.map((v) => v + sign * t);
+      traces.push(
+        {
+          x, y: band(1), type: "scatter", mode: "lines", name: "Threshold band",
+          line: { color: ANOMALY_COLOR, width: 1, dash: "dash" }, opacity: 0.5, legendgroup: "band",
+          hoverinfo: "skip",
+        },
+        {
+          x, y: band(-1), type: "scatter", mode: "lines", name: "Threshold band",
+          line: { color: ANOMALY_COLOR, width: 1, dash: "dash" }, opacity: 0.5, legendgroup: "band",
+          showlegend: false, hoverinfo: "skip",
+        },
+      );
+      const idx = x.filter((i) => anomaly.flags[i][featureIndex]);
+      traces.push({
+        x: idx, y: idx.map((i) => actualY[i]), type: "scatter", mode: "markers", name: "Probable anomaly",
+        marker: { color: ANOMALY_COLOR, size: 10, symbol: "circle-open", line: { width: 2, color: ANOMALY_COLOR } },
+      });
+    }
+
     const layoutSpec: Partial<Layout> = {
       autosize: true,
       height: 400,
@@ -61,7 +87,7 @@ export default function ForecastChart({ featureNames, actual, predicted }: Forec
     };
 
     return { data: traces, layout: layoutSpec };
-  }, [actual, predicted, featureIndex, colors, featureNames]);
+  }, [actual, predicted, anomaly, featureIndex, colors, featureNames]);
 
   return (
     <div>

@@ -62,6 +62,11 @@ export default function ExperimentsPage() {
                       className="block px-4 py-2 font-medium text-zinc-900 dark:text-zinc-50"
                     >
                       {e.experiment_name}
+                      {e.task_type === "anomaly_detection" && (
+                        <span className="ml-2 rounded-full bg-red-100 dark:bg-red-950 px-2 py-0.5 text-xs font-normal text-red-700 dark:text-red-300">
+                          anomaly
+                        </span>
+                      )}
                     </Link>
                   </td>
                   <td className="px-4 py-2 text-zinc-600 dark:text-zinc-400">

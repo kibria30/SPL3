@@ -1,8 +1,14 @@
 # Anomaly Detection — Future Scope
 
-Status: **not built**. This document is a scoping reference for a future version. It records the
-agreed design and the exact, minimal set of changes needed so implementation can pick this up
-later without re-deriving the reasoning.
+Status: **built** (Tensor-AR only, `task_type="anomaly_detection"`). Implementation notes:
+- Threshold is stored in `hyperparams["anomaly"] = {mode, k, threshold}`; `auto` uses
+  `k * 1.4826 * MAD(actual - predicted)` per feature (k=3 default, falls back to std when MAD=0),
+  `manual` uses one absolute threshold in z-scored units. See `backend/app/services/anomaly.py`.
+- Flags are computed at read time in `GET /experiments/{id}/series` (optional `mode`/`k`/`threshold`
+  query params preview a different threshold without saving).
+- Anomaly experiments are excluded from all Compare queries and from `compare-batch`.
+
+The rest of this document is the original scoping reference.
 
 ## Design
 

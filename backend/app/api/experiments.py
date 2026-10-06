@@ -16,17 +16,20 @@ from app.db_models.forecasting_model import ForecastingModel
 from app.db_models.result import Result
 from app.db_models.user import User
 from app.schemas.experiment import (
+    AnomalyConfig,
     ComparisonEntryOut,
     ComparisonGroupOut,
     ComparisonViewOut,
     ExperimentBatchCreate,
     ExperimentBatchOut,
     ExperimentCreate,
+    AnomalyOut,
     ExperimentOut,
     ResultOut,
     SeriesOut,
     SkippedModelOut,
 )
+from app.services.anomaly import compute_anomalies
 from app.services.eligibility import SplitEligibility, compute_eligibility
 from app.services.experiment_runner import dispatch_experiment
 
@@ -165,6 +168,7 @@ def get_comparison_view(
             Experiment.test_periods == test_periods,
             Experiment.input_periods == input_periods,
             Experiment.period_length == dataset.period_length,
+            Experiment.task_type == "forecasting",
         )
         .order_by(Experiment.created_at.asc())
         .all()
@@ -209,6 +213,7 @@ def delete_comparison(
             Experiment.test_periods == test_periods,
             Experiment.input_periods == input_periods,
             Experiment.period_length == dataset.period_length,
+            Experiment.task_type == "forecasting",
         )
         .all()
     )
@@ -232,7 +237,7 @@ def list_comparison_groups(user: User = Depends(get_current_user), db: Session =
         db.query(Experiment, ForecastingModel, Dataset)
         .join(ForecastingModel, Experiment.model_id == ForecastingModel.id)
         .join(Dataset, Experiment.dataset_id == Dataset.id)
-        .filter(Experiment.user_id == user.id)
+        .filter(Experiment.user_id == user.id, Experiment.task_type == "forecasting")
         .all()
     )
 
@@ -281,6 +286,12 @@ def create_experiment(
     if model is None:
         raise HTTPException(status_code=404, detail=f"Unknown model slug '{payload.model_slug}'")
 
+    hyperparams = dict(payload.hyperparams)
+    if payload.task_type == "anomaly_detection":
+        if model.slug != "tensor_ar":
+            raise HTTPException(status_code=422, detail="Anomaly detection is only available with Tensor-AR.")
+        hyperparams["anomaly"] = (payload.anomaly or AnomalyConfig()).model_dump()
+
     try:
         elig = compute_eligibility(db, dataset, payload.test_periods, payload.input_periods, val_ratio=payload.val_ratio)
     except ValueError as e:
@@ -296,7 +307,7 @@ def create_experiment(
         db, user, dataset, model, elig,
         experiment_name=payload.experiment_name,
         test_periods=payload.test_periods, input_periods=payload.input_periods,
-        val_ratio=payload.val_ratio, hyperparams=payload.hyperparams, task_type=payload.task_type,
+        val_ratio=payload.val_ratio, hyperparams=hyperparams, task_type=payload.task_type,
         selected_columns=selected_columns,
     )
 
@@ -339,7 +350,14 @@ def get_result(experiment_id: int, user: User = Depends(get_current_user), db: S
 
 
 @router.get("/{experiment_id}/series", response_model=SeriesOut)
-def get_series(experiment_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+def get_series(
+    experiment_id: int,
+    mode: str | None = Query(default=None, pattern="^(auto|manual)$"),
+    k: float | None = Query(default=None, gt=0, le=20),
+    threshold: float | None = Query(default=None, gt=0),
+    user: User = Depends(get_current_user), db: Session = Depends(get_db),
+):
+    """For anomaly experiments, mode/k/threshold override the saved config (preview, not persisted)."""
     experiment = _owned_experiment_or_404(experiment_id, user, db)
     result = db.query(Result).filter(Result.experiment_id == experiment.id).first()
     if result is None:
@@ -349,4 +367,19 @@ def get_series(experiment_id: int, user: User = Depends(get_current_user), db: S
     predicted = np.load(result.predicted_sequence_path)
     dataset = db.get(Dataset, experiment.dataset_id)
 
-    return SeriesOut(feature_names=experiment.selected_columns or dataset.selected_columns, actual=actual.tolist(), predicted=predicted.tolist())
+    anomaly = None
+    if experiment.task_type == "anomaly_detection":
+        saved = AnomalyConfig(**(experiment.hyperparams or {}).get("anomaly", {}))
+        try:
+            anomaly = AnomalyOut(**compute_anomalies(
+                actual, predicted,
+                mode=mode or saved.mode, k=k if k is not None else saved.k,
+                threshold=threshold if threshold is not None else saved.threshold,
+            ))
+        except ValueError as e:
+            raise HTTPException(status_code=422, detail=str(e))
+
+    return SeriesOut(
+        feature_names=experiment.selected_columns or dataset.selected_columns,
+        actual=actual.tolist(), predicted=predicted.tolist(), anomaly=anomaly,
+    )
