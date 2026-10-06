@@ -134,7 +134,8 @@ def create_comparison_batch(
             db, user, dataset, model, elig,
             experiment_name=f"{payload.experiment_name_prefix} — {model.name}",
             test_periods=payload.test_periods, input_periods=payload.input_periods,
-            val_ratio=payload.val_ratio, hyperparams={}, task_type=payload.task_type,
+            val_ratio=payload.val_ratio, hyperparams=payload.hyperparams_by_model.get(slug, {}),
+            task_type=payload.task_type,
             selected_columns=selected_columns,
         )
         created.append(experiment)
