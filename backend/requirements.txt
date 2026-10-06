@@ -17,6 +17,7 @@ pandas
 scikit-learn
 torch
 tensorly
+tensordecomp
 statsmodels
 matplotlib
 requests

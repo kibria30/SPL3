@@ -73,6 +73,7 @@ class ExperimentBatchCreate(BaseModel):
     val_ratio: float = Field(default=0.2, gt=0, lt=1)
     model_slugs: list[str] = Field(min_length=1)
     selected_columns: list[str] | None = Field(default=None, min_length=1)
+    hyperparams_by_model: dict[str, dict] = Field(default_factory=dict)  # slug -> hyperparams
 
 
 class SkippedModelOut(BaseModel):

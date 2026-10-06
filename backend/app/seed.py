@@ -14,7 +14,7 @@ from app.services.forecasting_bridge import ili_loader, live_weather_loader, tra
 MODELS = [
     dict(
         slug="tensor_ar", name="Tensor-AR (PowerCast)", family=ModelFamily.classical,
-        requires_training=False, default_hyperparams={"rank": 2, "ar_lags": 1},
+        requires_training=False, default_hyperparams={"rank": 2, "ar_lags": 1, "decomposition": "cp"},
         description="Reshapes pre-test history into a (period, time, features) tensor, fits a "
                      "rank-R PARAFAC/CP decomposition, forecasts each latent factor forward with "
                      "AutoReg, and reconstructs the forecast. The paper this project is built to demonstrate.",

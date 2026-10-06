@@ -14,7 +14,8 @@ from app.services.forecasting_bridge import (
 
 MODEL_BUILDERS = {
     "tensor_ar": lambda period, hp: TensorARForecaster(
-        period=period, rank=hp.get("rank", 2), ar_lags=hp.get("ar_lags", 1)
+        period=period, rank=hp.get("rank", 2), ar_lags=hp.get("ar_lags", 1),
+        decomposition=hp.get("decomposition", "cp"),
     ),
     "sarima": lambda period, hp: SARIMAForecaster(
         period=period,

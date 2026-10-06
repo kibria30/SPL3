@@ -57,6 +57,7 @@ export interface CreateComparisonBatchPayload {
   val_ratio?: number;
   model_slugs: string[];
   selected_columns?: string[] | null;
+  hyperparams_by_model?: Record<string, Record<string, unknown>>;
 }
 
 export function createComparisonBatch(payload: CreateComparisonBatchPayload) {

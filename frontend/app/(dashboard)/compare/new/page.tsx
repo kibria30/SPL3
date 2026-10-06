@@ -17,6 +17,7 @@ export default function NewComparisonPage() {
   const [testPeriods, setTestPeriods] = useState(10);
   const [inputPeriods, setInputPeriods] = useState(6);
   const [excludedColumns, setExcludedColumns] = useState<string[]>([]);  // unticked; empty = all columns
+  const [tensorArDecomposition, setTensorArDecomposition] = useState("cp");
   const [selectedSlugs, setSelectedSlugs] = useState<Set<string>>(new Set());
 
   const [splitPreview, setSplitPreview] = useState<SplitPreview | null>(null);
@@ -90,6 +91,9 @@ export default function NewComparisonPage() {
         input_periods: inputPeriods,
         model_slugs: [...selectedSlugs],
         selected_columns: selectedColumns,
+        hyperparams_by_model: selectedSlugs.has("tensor_ar")
+          ? { tensor_ar: { decomposition: tensorArDecomposition } }
+          : undefined,
       });
       // Runs in the background (see ExperimentTracker) -- send the user straight to the
       // comparison view rather than making them wait here.
@@ -271,6 +275,22 @@ export default function NewComparisonPage() {
             })}
           </div>
         </div>
+
+        {selectedSlugs.has("tensor_ar") && (
+          <div>
+            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+              Tensor-AR decomposition
+            </label>
+            <select
+              value={tensorArDecomposition}
+              onChange={(e) => setTensorArDecomposition(e.target.value)}
+              className="rounded-md border border-black/10 dark:border-white/15 bg-transparent px-3 py-2 text-sm text-zinc-900 dark:text-zinc-50"
+            >
+              <option value="cp">CP</option>
+              <option value="cp_puzzle">CP Puzzle</option>
+            </select>
+          </div>
+        )}
 
         {submitError && <p className="text-sm text-red-600">{submitError}</p>}
 
