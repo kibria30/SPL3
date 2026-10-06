@@ -32,6 +32,7 @@ export interface ComparisonView {
   period_length: number;
   seq_len: number;
   pred_len: number;
+  selected_columns: string[] | null;
   entries: ComparisonEntry[];
 }
 
@@ -41,6 +42,7 @@ export interface ComparisonGroup {
   test_periods: number;
   input_periods: number;
   period_length: number;
+  selected_columns: string[] | null;
   model_slugs: string[];
   experiment_count: number;
   completed_count: number;
@@ -54,6 +56,7 @@ export interface CreateComparisonBatchPayload {
   input_periods: number;
   val_ratio?: number;
   model_slugs: string[];
+  selected_columns?: string[] | null;
 }
 
 export function createComparisonBatch(payload: CreateComparisonBatchPayload) {
@@ -63,12 +66,33 @@ export function createComparisonBatch(payload: CreateComparisonBatchPayload) {
   });
 }
 
-export function getComparisonView(datasetId: number, testPeriods: number, inputPeriods: number) {
-  return apiFetch<ComparisonView>(
-    `/experiments/compare?dataset_id=${datasetId}&test_periods=${testPeriods}&input_periods=${inputPeriods}`
-  );
+// Query string shared by the compare view URL and its API call; omit columns = all columns.
+export function comparisonQuery(
+  datasetId: number, testPeriods: number, inputPeriods: number, columns: string[] | null
+) {
+  const q = new URLSearchParams({
+    dataset_id: String(datasetId),
+    test_periods: String(testPeriods),
+    input_periods: String(inputPeriods),
+  });
+  columns?.forEach((c) => q.append("columns", c));
+  return q.toString();
+}
+
+export function getComparisonView(
+  datasetId: number, testPeriods: number, inputPeriods: number, columns: string[] | null = null
+) {
+  return apiFetch<ComparisonView>(`/experiments/compare?${comparisonQuery(datasetId, testPeriods, inputPeriods, columns)}`);
 }
 
 export function getComparisonGroups() {
   return apiFetch<ComparisonGroup[]>("/experiments/compare/groups");
+}
+
+export function deleteComparison(
+  datasetId: number, testPeriods: number, inputPeriods: number, columns: string[] | null = null
+) {
+  return apiFetch<void>(`/experiments/compare?${comparisonQuery(datasetId, testPeriods, inputPeriods, columns)}`, {
+    method: "DELETE",
+  });
 }
