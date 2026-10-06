@@ -42,10 +42,16 @@ class TensorARForecaster(BaseForecaster):
 
     name = "Tensor-AR"
 
-    def __init__(self, period: int, rank: int = 2, ar_lags: int = 1):
+    DECOMPOSITIONS = ("cp", "cp_puzzle")
+
+    def __init__(self, period: int, rank: int = 2, ar_lags: int = 1, decomposition: str = "cp"):
+        if decomposition not in self.DECOMPOSITIONS:
+            raise ValueError(f"decomposition must be one of {self.DECOMPOSITIONS}, got '{decomposition}'")
         self.period = period
         self.rank = rank
         self.ar_lags = ar_lags
+        # "cp" = tensorly PARAFAC; "cp_puzzle" = tensordecomp's PuzzleTensor-aligned CP.
+        self.decomposition = decomposition
         self._weights = None
         self._day_factors = None
         self._time_factors = None
@@ -75,7 +81,12 @@ class TensorARForecaster(BaseForecaster):
             )
         tensor = history_for_decomp[-usable_len:].reshape(-1, self.period, decomp_n_vars).astype(np.float64)
 
-        weights, factors = parafac(tensor, rank=self.rank, normalize_factors=True)
+        if self.decomposition == "cp_puzzle":
+            import tensordecomp as td  # lazy: only needed for this option
+            res = td.cp_puzzle(tensor, rank=self.rank)
+            weights, factors = np.asarray(res["weights"]), [np.asarray(f) for f in res["factors"]]
+        else:
+            weights, factors = parafac(tensor, rank=self.rank, normalize_factors=True)
         self._day_factors, self._time_factors, self._feature_factors = factors
         self._weights = weights
 

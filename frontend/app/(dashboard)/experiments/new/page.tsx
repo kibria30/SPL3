@@ -62,6 +62,22 @@ export default function NewExperimentPage() {
     }
   }, [selectedModel]);
 
+  // Keeps the dropdown and the JSON box in sync: the dropdown edits the JSON's "decomposition" key.
+  let tensorArDecomposition = "cp";
+  try {
+    tensorArDecomposition = String(JSON.parse(hyperparamsText).decomposition ?? "cp");
+  } catch {
+    // Invalid JSON mid-edit -- keep the default; submit surfaces the parse error.
+  }
+
+  function setDecomposition(value: string) {
+    try {
+      setHyperparamsText(JSON.stringify({ ...JSON.parse(hyperparamsText), decomposition: value }, null, 2));
+    } catch {
+      setHyperparamsText(JSON.stringify({ decomposition: value }, null, 2));
+    }
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!datasetId || !modelSlug) return;
@@ -245,6 +261,22 @@ export default function NewExperimentPage() {
             })}
           </div>
         </div>
+
+        {selectedModel?.slug === "tensor_ar" && (
+          <div>
+            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+              Decomposition
+            </label>
+            <select
+              value={tensorArDecomposition}
+              onChange={(e) => setDecomposition(e.target.value)}
+              className="rounded-md border border-black/10 dark:border-white/15 bg-transparent px-3 py-2 text-sm text-zinc-900 dark:text-zinc-50"
+            >
+              <option value="cp">CP</option>
+              <option value="cp_puzzle">CP Puzzle</option>
+            </select>
+          </div>
+        )}
 
         {selectedModel && (
           <div>
