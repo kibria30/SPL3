@@ -17,6 +17,10 @@ export default function NewExperimentPage() {
   const [inputPeriods, setInputPeriods] = useState(6);
   const [modelSlug, setModelSlug] = useState<string | null>(null);
   const [hyperparamsText, setHyperparamsText] = useState("{}");
+  const [taskType, setTaskType] = useState<"forecasting" | "anomaly_detection">("forecasting");
+  const [thresholdMode, setThresholdMode] = useState<"auto" | "manual">("auto");
+  const [k, setK] = useState(3);
+  const [manualThreshold, setManualThreshold] = useState(1);
   const [excludedColumns, setExcludedColumns] = useState<string[]>([]);  // unticked; empty = all columns
 
   const [splitPreview, setSplitPreview] = useState<SplitPreview | null>(null);
@@ -54,7 +58,12 @@ export default function NewExperimentPage() {
     setExcludedColumns((prev) => (prev.includes(name) ? prev.filter((c) => c !== name) : [...prev, name]));
   }
 
-  const selectedModel = useMemo(() => models.find((m) => m.slug === modelSlug) ?? null, [models, modelSlug]);
+  const isAnomaly = taskType === "anomaly_detection";
+
+  // Anomaly detection runs on Tensor-AR only.
+  const effectiveSlug = isAnomaly ? "tensor_ar" : modelSlug;
+
+  const selectedModel = useMemo(() => models.find((m) => m.slug === effectiveSlug) ?? null, [models, effectiveSlug]);
 
   useEffect(() => {
     if (selectedModel) {
@@ -80,7 +89,7 @@ export default function NewExperimentPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!datasetId || !modelSlug) return;
+    if (!datasetId || !effectiveSlug) return;
     setSubmitError(null);
 
     let hyperparams: Record<string, unknown>;
@@ -95,8 +104,12 @@ export default function NewExperimentPage() {
     try {
       await createExperiment({
         dataset_id: datasetId,
-        model_slug: modelSlug,
+        model_slug: effectiveSlug,
         experiment_name: experimentName,
+        task_type: taskType,
+        anomaly: isAnomaly
+          ? { mode: thresholdMode, k, threshold: thresholdMode === "manual" ? manualThreshold : null }
+          : undefined,
         test_periods: testPeriods,
         input_periods: inputPeriods,
         hyperparams,
@@ -117,6 +130,24 @@ export default function NewExperimentPage() {
       <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-50 mb-6">New experiment</h1>
 
       <form onSubmit={handleSubmit} className="space-y-6">
+        <div>
+          <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Task</label>
+          <div className="inline-flex rounded-md border border-black/10 dark:border-white/15 overflow-hidden text-sm">
+            {([["forecasting", "Forecasting"], ["anomaly_detection", "Anomaly detection"]] as const).map(([value, label]) => (
+              <button
+                type="button"
+                key={value}
+                onClick={() => setTaskType(value)}
+                className={`px-3 py-1.5 ${
+                  taskType === value ? "bg-foreground text-background" : "text-zinc-700 dark:text-zinc-300"
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+
         <div>
           <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
             Experiment name
@@ -237,6 +268,49 @@ export default function NewExperimentPage() {
           </div>
         )}
 
+        {isAnomaly && (
+          <div className="rounded-md border border-black/10 dark:border-white/10 p-4 space-y-3">
+            <p className="text-sm text-zinc-600 dark:text-zinc-400">
+              Tensor-AR forecasts the output window; points where |actual − predicted| exceeds the threshold are
+              flagged as probable anomalies. Anomaly runs are not part of model comparison.
+            </p>
+            <div className="flex gap-4 text-sm text-zinc-700 dark:text-zinc-300">
+              <label className="flex items-center gap-2">
+                <input type="radio" checked={thresholdMode === "auto"} onChange={() => setThresholdMode("auto")} />
+                Auto (from the residuals)
+              </label>
+              <label className="flex items-center gap-2">
+                <input type="radio" checked={thresholdMode === "manual"} onChange={() => setThresholdMode("manual")} />
+                Manual
+              </label>
+            </div>
+            {thresholdMode === "auto" ? (
+              <div>
+                <label className="block text-sm text-zinc-700 dark:text-zinc-300 mb-1">
+                  k (threshold = k × robust σ of the residuals, per column)
+                </label>
+                <input
+                  type="number" min={0.5} max={20} step={0.5} value={k}
+                  onChange={(e) => setK(Number(e.target.value))}
+                  className="w-28 rounded-md border border-black/10 dark:border-white/15 bg-transparent px-3 py-1.5 text-sm"
+                />
+              </div>
+            ) : (
+              <div>
+                <label className="block text-sm text-zinc-700 dark:text-zinc-300 mb-1">
+                  Threshold (normalized units, same for every column)
+                </label>
+                <input
+                  type="number" min={0.01} step={0.1} value={manualThreshold}
+                  onChange={(e) => setManualThreshold(Number(e.target.value))}
+                  className="w-28 rounded-md border border-black/10 dark:border-white/15 bg-transparent px-3 py-1.5 text-sm"
+                />
+              </div>
+            )}
+          </div>
+        )}
+
+        {!isAnomaly && (
         <div>
           <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Model</label>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
@@ -261,6 +335,7 @@ export default function NewExperimentPage() {
             })}
           </div>
         </div>
+        )}
 
         {selectedModel?.slug === "tensor_ar" && (
           <div>
@@ -296,7 +371,10 @@ export default function NewExperimentPage() {
 
         <button
           type="submit"
-          disabled={submitting || !datasetId || !modelSlug || selectedColumns.length === 0}
+          disabled={
+            submitting || !datasetId || !effectiveSlug || selectedColumns.length === 0 ||
+            (isAnomaly && thresholdMode === "manual" && !(manualThreshold > 0))
+          }
           className="rounded-md bg-foreground text-background px-4 py-2 text-sm font-medium disabled:opacity-50"
         >
           {submitting ? "Creating..." : "Run experiment"}

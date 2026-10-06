@@ -1,15 +1,31 @@
 from datetime import datetime
+from typing import Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 from app.db_models.experiment import ExperimentStatus
+
+TaskType = Literal["forecasting", "anomaly_detection"]
+
+
+class AnomalyConfig(BaseModel):
+    mode: Literal["auto", "manual"] = "auto"
+    k: float = Field(default=3.0, gt=0, le=20)
+    threshold: float | None = Field(default=None, gt=0)  # manual mode, z-scored units
+
+    @model_validator(mode="after")
+    def _manual_needs_threshold(self):
+        if self.mode == "manual" and self.threshold is None:
+            raise ValueError("Manual mode requires a threshold.")
+        return self
 
 
 class ExperimentCreate(BaseModel):
     dataset_id: int
     model_slug: str
     experiment_name: str
-    task_type: str = "forecasting"
+    task_type: TaskType = "forecasting"
+    anomaly: AnomalyConfig | None = None  # only used when task_type == "anomaly_detection"
     test_periods: int = Field(ge=8, le=25)
     input_periods: int = Field(ge=5, le=20)
     val_ratio: float = Field(default=0.2, gt=0, lt=1)
@@ -58,16 +74,26 @@ class ResultOut(BaseModel):
     model_config = {"from_attributes": True}
 
 
+class AnomalyOut(BaseModel):
+    mode: str
+    k: float
+    thresholds: list[float]  # per feature
+    residuals: list[list[float]]
+    flags: list[list[bool]]
+    count: int
+
+
 class SeriesOut(BaseModel):
     feature_names: list[str]
     actual: list[list[float]]
     predicted: list[list[float]]
+    anomaly: AnomalyOut | None = None
 
 
 class ExperimentBatchCreate(BaseModel):
     dataset_id: int
     experiment_name_prefix: str
-    task_type: str = "forecasting"
+    task_type: Literal["forecasting"] = "forecasting"  # anomaly detection is not comparable
     test_periods: int = Field(ge=8, le=25)
     input_periods: int = Field(ge=5, le=20)
     val_ratio: float = Field(default=0.2, gt=0, lt=1)
