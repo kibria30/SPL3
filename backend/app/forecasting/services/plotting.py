@@ -37,7 +37,7 @@ def plot_forecasts(actual, forecasts: dict, feature_names, out_dir: str, dataset
 
 
 def plot_horizon_curve(horizon_summary, dataset_name: str, out_dir: str, metric: str = "MSE") -> None:
-    """horizon_summary: a DataFrame with columns [Horizon, Method, R2, MSE, MAE, RMSE] (long
+    """horizon_summary: a DataFrame with columns [Horizon, Method, MSE, MAE, RMSE] (long
     format, one row per horizon per method -- see main.py's combined_summary). Plots `metric`
     vs. horizon, one line per method, matching how the LTSF papers show model degradation as
     the forecast horizon grows (e.g. DLinear paper Figure 4-style curves).

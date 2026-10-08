@@ -32,7 +32,6 @@ export interface Experiment {
 
 export interface FeatureMetrics {
   Feature: string;
-  R2: number;
   MSE: number;
   MAE: number;
   RMSE: number;

@@ -9,7 +9,7 @@ import { deleteComparison, getComparisonView, type ComparisonView } from "@/lib/
 import { ApiError } from "@/lib/api";
 import { getExperimentSeries, type SeriesData } from "@/lib/experiments";
 
-const METRIC_COLUMNS = ["R2", "MSE", "MAE", "RMSE", "MASE", "sMAPE"] as const;
+const METRIC_COLUMNS = ["MSE", "MAE", "RMSE", "MASE", "sMAPE"] as const;
 
 export default function ComparisonViewPage() {
   return (

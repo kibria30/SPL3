@@ -17,7 +17,7 @@ import {
 import { listModels, type ForecastingModel } from "@/lib/models";
 import { ApiError } from "@/lib/api";
 
-const METRIC_COLUMNS = ["R2", "MSE", "MAE", "RMSE", "MASE", "sMAPE"] as const;
+const METRIC_COLUMNS = ["MSE", "MAE", "RMSE", "MASE", "sMAPE"] as const;
 
 function formatDuration(totalSeconds: number): string {
   const m = Math.floor(totalSeconds / 60);

@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error, root_mean_squared_error
+from sklearn.metrics import mean_squared_error, mean_absolute_error, root_mean_squared_error
 
 
 def compute_mase_denominators(history: np.ndarray, period: int) -> np.ndarray:
@@ -32,7 +32,7 @@ def _smape(y_true: np.ndarray, y_pred: np.ndarray) -> float:
 def compute_metrics_table(forecasts: dict, actual: np.ndarray, feature_names=None,
                            mase_denom: np.ndarray = None, scaler=None) -> pd.DataFrame:
     """forecasts: {method_name: (pred_len, n_vars) array}. actual: (pred_len, n_vars).
-    Returns one row per (feature, method) with R2/MSE/MAE/RMSE, plus MASE if `mase_denom` is
+    Returns one row per (feature, method) with MSE/MAE/RMSE, plus MASE if `mase_denom` is
     given (see compute_mase_denominators) and sMAPE if `scaler` is given (an already-fit
     sklearn scaler with .inverse_transform -- typically bundle.scaler from datasets/base.py).
 
@@ -57,7 +57,6 @@ def compute_metrics_table(forecasts: dict, actual: np.ndarray, feature_names=Non
             row = {
                 "Feature": fname,
                 "Method": method,
-                "R2": r2_score(y_true, y_pred),
                 "MSE": mean_squared_error(y_true, y_pred),
                 "MAE": mean_absolute_error(y_true, y_pred),
                 "RMSE": root_mean_squared_error(y_true, y_pred),
