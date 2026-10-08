@@ -277,6 +277,7 @@ export default function ExperimentDetailPage() {
         groups={[
           {
             title: "Data",
+            tone: "sky",
             items: [
               { label: "Dataset", value: dataset?.name ?? `#${experiment.dataset_id}` },
               {
@@ -290,6 +291,7 @@ export default function ExperimentDetailPage() {
           },
           {
             title: "Split",
+            tone: "violet",
             items: [
               {
                 label: "Test window",
@@ -301,6 +303,7 @@ export default function ExperimentDetailPage() {
           },
           {
             title: "Training",
+            tone: "amber",
             items: [
               { label: "Training data", value: experiment.has_train_data ? "Yes" : "None" },
               ...(model?.requires_training ? [{ label: "Validation share", value: `${Math.round(experiment.val_ratio * 100)}%` }] : []),

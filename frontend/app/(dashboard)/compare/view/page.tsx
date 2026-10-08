@@ -163,7 +163,7 @@ function ComparisonViewContent() {
   return (
     <div>
       <div className="mb-1 flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-50">{view.dataset_name}</h1>
+        <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-50">{view.comparison_name ?? view.dataset_name}</h1>
         <button
           onClick={handleDelete}
           disabled={deleting || isLive}
@@ -178,6 +178,7 @@ function ComparisonViewContent() {
         groups={[
           {
             title: "Data",
+            tone: "sky",
             items: [
               { label: "Dataset", value: view.dataset_name },
               {
@@ -191,6 +192,7 @@ function ComparisonViewContent() {
           },
           {
             title: "Split",
+            tone: "violet",
             items: [
               {
                 label: "Test window",
@@ -202,6 +204,7 @@ function ComparisonViewContent() {
           },
           {
             title: "Models",
+            tone: "amber",
             items: [{ label: "Compared", value: String(view.entries.length) }],
             chips: view.entries.map((e) => ({ label: e.model_name, value: familyLabel(e.model_family) })),
           },
@@ -210,7 +213,7 @@ function ComparisonViewContent() {
 
       {view.dataset_slug === "weather" && (
         <p className="mb-6 rounded-md border border-amber-200 dark:border-amber-900 bg-amber-50 dark:bg-amber-950/30 p-3 text-sm text-amber-700 dark:text-amber-300">
-          This dataset refreshes live &mdash; experiments created on different dates may reflect
+          This dataset refreshes live, so experiments created on different dates may reflect
           slightly different historical windows. Check each row&apos;s created time if results look
           surprising.
         </p>

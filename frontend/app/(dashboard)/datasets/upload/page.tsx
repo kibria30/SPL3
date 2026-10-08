@@ -63,7 +63,7 @@ export default function UploadDatasetPage() {
           Select forecast channels
         </h1>
         <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-6">
-          {uploaded.name} &mdash; {uploaded.rows.toLocaleString()} rows. Pick the numeric columns to
+          {uploaded.name} ({uploaded.rows.toLocaleString()} rows). Pick the numeric columns to
           forecast. Non-numeric columns (e.g. a timestamp) can&apos;t be selected.
         </p>
 

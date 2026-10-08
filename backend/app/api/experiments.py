@@ -1,6 +1,6 @@
 import os
 import shutil
-from collections import defaultdict
+from collections import Counter, defaultdict
 
 import numpy as np
 from fastapi import APIRouter, Depends, HTTPException, Query, status
@@ -135,7 +135,7 @@ def create_comparison_batch(
             continue
         experiment = _create_experiment_row(
             db, user, dataset, model, elig,
-            experiment_name=f"{payload.experiment_name_prefix} — {model.name}",
+            experiment_name=f"{payload.experiment_name_prefix} ({model.name})",
             test_periods=payload.test_periods, input_periods=payload.input_periods,
             val_ratio=payload.val_ratio, hyperparams=payload.hyperparams_by_model.get(slug, {}),
             task_type=payload.task_type,
@@ -190,6 +190,7 @@ def get_comparison_view(
 
     return ComparisonViewOut(
         dataset_id=dataset.id, dataset_name=dataset.name, dataset_slug=dataset.slug,
+        comparison_name=_comparison_name([(e.experiment.experiment_name, e.model_name) for e in entries]),
         test_periods=test_periods, input_periods=input_periods, period_length=dataset.period_length,
         seq_len=seq_len, pred_len=pred_len, selected_columns=selected_columns, entries=entries,
     )
@@ -231,6 +232,24 @@ def delete_comparison(
     db.commit()
 
 
+_LEGACY_SEPARATOR = " — "  # runs created before the name became "<comparison name> (<model name>)"
+
+
+def _comparison_name(runs: list[tuple[str, str]]) -> str | None:
+    """The comparison's own name, recovered from batch-created run names -- the most common
+    "<name>" part among runs named "<name> (<model name>)" (or the legacy "<name> — <model name>").
+    `runs` is (experiment_name, model_name) pairs; the model name is matched explicitly because
+    model names can themselves contain parentheses. None when no run follows the batch naming
+    pattern (e.g. runs started one by one), so the caller can fall back to the dataset name."""
+    prefixes: Counter[str] = Counter()
+    for name, model_name in runs:
+        for suffix in (f" ({model_name})", f"{_LEGACY_SEPARATOR}{model_name}"):
+            if name.endswith(suffix) and len(name) > len(suffix):
+                prefixes[name[: -len(suffix)]] += 1
+                break
+    return prefixes.most_common(1)[0][0] if prefixes else None
+
+
 @router.get("/compare/groups", response_model=list[ComparisonGroupOut])
 def list_comparison_groups(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     rows = (
@@ -255,10 +274,11 @@ def list_comparison_groups(user: User = Depends(get_current_user), db: Session =
         if len(model_slugs) < 2:
             continue
         dataset_name = members[0][2].name
+        comparison_name = _comparison_name([(e.experiment_name, m.name) for e, m, _ in members])
         completed_count = sum(1 for e, _, _ in members if e.status == ExperimentStatus.completed)
         latest_created_at = max(e.created_at for e, _, _ in members)
         out.append(ComparisonGroupOut(
-            dataset_id=dataset_id, dataset_name=dataset_name,
+            dataset_id=dataset_id, dataset_name=dataset_name, comparison_name=comparison_name,
             test_periods=test_periods, input_periods=input_periods, period_length=period_length,
             selected_columns=list(group_columns) if group_columns is not None else None,
             model_slugs=model_slugs, experiment_count=len(members), completed_count=completed_count,

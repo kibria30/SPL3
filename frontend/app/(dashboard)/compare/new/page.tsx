@@ -3,8 +3,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { listDatasets, type Dataset } from "@/lib/datasets";
-import { familyLabel, listModels, type ForecastingModel } from "@/lib/models";
-import SplitWindows from "@/components/SplitWindows";
+import { listModels, type ForecastingModel } from "@/lib/models";
+import { ColumnPicker, Field, FormSection, ModelTile, SplitSection, inputClass } from "@/components/form";
 import { clampToLimits, getSplitLimits } from "@/lib/splitLimits";
 import { getSplitPreview, type SplitPreview } from "@/lib/experiments";
 import { comparisonQuery, createComparisonBatch } from "@/lib/compare";
@@ -116,223 +116,120 @@ export default function NewComparisonPage() {
   }
 
   return (
-    <div className="max-w-2xl">
-      <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-50 mb-6">New comparison</h1>
+    <div>
+      <h1 className="mb-6 text-2xl font-semibold text-zinc-900 dark:text-zinc-50">New comparison</h1>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        <div>
-          <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
-            Comparison name
-          </label>
-          <input
-            required
-            value={namePrefix}
-            onChange={(e) => setNamePrefix(e.target.value)}
-            placeholder="e.g. ILI baseline sweep"
-            className="w-full rounded-md border border-black/15 dark:border-white/15 bg-transparent px-3 py-2 text-sm text-zinc-900 dark:text-zinc-50"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Dataset</label>
-          <select
-            required
-            value={datasetId ?? ""}
-            onChange={(e) => {
-              const id = Number(e.target.value);
-              setDatasetId(id);
-              const d = datasets.find((x) => x.id === id);
-              if (d) {
-                const { test, input } = clampToLimits(testPeriods, inputPeriods, getSplitLimits(d.rows, d.period_length));
-                setTestPeriods(test);
-                setInputPeriods(input);
-              }
-              setExcludedColumns([]);  // every column starts checked
-            }}
-            className="w-full rounded-md border border-black/15 dark:border-white/15 bg-white dark:bg-zinc-900 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-50"
-          >
-            <option value="" disabled>
-              Select a dataset
-            </option>
-            {datasets.map((d) => (
-              <option key={d.id} value={d.id}>
-                {d.name} ({d.rows.toLocaleString()} rows, period {d.period_length})
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {selectedDataset && (
-          <div>
-            <div className="flex items-center justify-between mb-1">
-              <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                Columns ({selectedColumns.length}/{selectedDataset.selected_columns.length})
-              </label>
-              <div className="flex gap-3 text-xs text-zinc-500">
-                <button type="button" onClick={() => setExcludedColumns([])}>
-                  Select all
-                </button>
-                <button type="button" onClick={() => setExcludedColumns(selectedDataset.selected_columns)}>
-                  Clear
-                </button>
-              </div>
-            </div>
-            <div className="max-h-48 overflow-y-auto grid grid-cols-2 gap-x-4 gap-y-1 rounded-md border border-black/15 dark:border-white/15 p-3 sm:grid-cols-3">
-              {selectedDataset.selected_columns.map((name) => (
-                <label key={name} className="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-300">
-                  <input
-                    type="checkbox"
-                    checked={selectedColumns.includes(name)}
-                    onChange={() => toggleColumn(name)}
-                  />
-                  <span className="truncate" title={name}>
-                    {name}
-                  </span>
-                </label>
-              ))}
-            </div>
-            {selectedColumns.length === 0 && (
-              <p className="mt-1 text-sm text-red-600">Select at least one column.</p>
-            )}
-          </div>
-        )}
-
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
-              Test window (periods): {testPeriods}{limits && <span className="font-normal text-zinc-500"> (range {limits.testMin}&ndash;{limits.testMax})</span>}
-            </label>
+        <div className="grid items-start gap-6 lg:grid-cols-2">
+          <div className="space-y-6">
+        <FormSection title="Dataset">
+          <Field label="Comparison name">
             <input
-              type="range"
-              min={limits?.testMin ?? 3}
-              max={limits?.testMax ?? 25}
-              value={testPeriods}
+              required
+              value={namePrefix}
+              onChange={(e) => setNamePrefix(e.target.value)}
+              placeholder="e.g. ILI baseline sweep"
+              className={inputClass}
+            />
+          </Field>
+
+          <Field label="Dataset">
+            <select
+              required
+              value={datasetId ?? ""}
               onChange={(e) => {
-                const v = Number(e.target.value);
-                setTestPeriods(v);
-                if (inputPeriods >= v) setInputPeriods(v - 1);
+                const id = Number(e.target.value);
+                setDatasetId(id);
+                const d = datasets.find((x) => x.id === id);
+                if (d) {
+                  const { test, input } = clampToLimits(testPeriods, inputPeriods, getSplitLimits(d.rows, d.period_length));
+                  setTestPeriods(test);
+                  setInputPeriods(input);
+                }
+                setExcludedColumns([]);  // every column starts checked
               }}
-              className="w-full"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
-              Input window (periods): {inputPeriods}{limits && <span className="font-normal text-zinc-500"> (range {limits.inputMin}&ndash;{limits.inputMax(testPeriods)})</span>}
-            </label>
-            <input
-              type="range"
-              min={limits?.inputMin ?? 1}
-              max={limits ? limits.inputMax(testPeriods) : Math.min(20, testPeriods - 1)}
-              value={inputPeriods}
-              onChange={(e) => setInputPeriods(Number(e.target.value))}
-              className="w-full"
-            />
-          </div>
-        </div>
+              className={inputClass}
+            >
+              <option value="" disabled>Select a dataset</option>
+              {datasets.map((d) => (
+                <option key={d.id} value={d.id}>
+                  {d.name} ({d.rows.toLocaleString()} rows, period {d.period_length})
+                </option>
+              ))}
+            </select>
+          </Field>
 
-        {previewError && <p className="text-sm text-red-600">{previewError}</p>}
-
-        {splitPreview && selectedDataset && (
-          <div className="space-y-3">
-            <SplitWindows
-              preview={splitPreview}
-              testPeriods={testPeriods}
-              inputPeriods={inputPeriods}
-              frequency={selectedDataset.frequency}
+          {selectedDataset && (
+            <ColumnPicker
+              dataset={selectedDataset}
+              selected={selectedColumns}
+              onToggle={toggleColumn}
+              onSelectAll={() => setExcludedColumns([])}
+              onClear={() => setExcludedColumns(selectedDataset.selected_columns)}
             />
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-base">
-              <span className="text-zinc-500 dark:text-zinc-400">Deep learning models</span>
-              <span
-                className={`rounded-full px-2.5 py-0.5 text-sm font-medium ${
-                  splitPreview.dl_eligible
-                    ? "bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300"
-                    : "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300"
-                }`}
-              >
-                {splitPreview.dl_eligible ? "Eligible" : "Not eligible"}
-              </span>
-              {!splitPreview.dl_eligible &&
-                splitPreview.recommended_test_periods !== null &&
-                splitPreview.recommended_input_periods !== null && (
-                  <span className="text-sm text-zinc-500 dark:text-zinc-400">
-                    Try test {splitPreview.recommended_test_periods}, input {splitPreview.recommended_input_periods}
-                  </span>
-                )}
-            </div>
-            {splitPreview.ineligible_reason && (
-              <p className="text-sm text-amber-700 dark:text-amber-400">{splitPreview.ineligible_reason}</p>
-            )}
-          </div>
-        )}
+          )}
+        </FormSection>
 
-        <div>
-          <div className="mb-1 flex items-center justify-between">
-            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">Models</label>
-            {splitPreview && (
-              <button
-                type="button"
-                onClick={selectAllEligible}
-                className="text-xs font-medium text-zinc-500 dark:text-zinc-400 underline"
-              >
+        <FormSection title="Split">
+          <SplitSection
+            dataset={selectedDataset} limits={limits}
+            testPeriods={testPeriods} inputPeriods={inputPeriods}
+            setTestPeriods={setTestPeriods} setInputPeriods={setInputPeriods}
+            preview={splitPreview} previewError={previewError}
+          />
+        </FormSection>
+
+          </div>
+
+        <FormSection
+          title={`Models${selectedSlugs.size > 0 ? ` (${selectedSlugs.size} selected)` : ""}`}
+          action={
+            splitPreview && (
+              <button type="button" onClick={selectAllEligible} className="text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:underline">
                 Select all eligible
               </button>
-            )}
+            )
+          }
+        >
+          <div className="grid gap-3 sm:grid-cols-2">
+            {models.map((m) => (
+              <ModelTile
+                key={m.slug} model={m} multi
+                selected={selectedSlugs.has(m.slug)}
+                eligible={splitPreview?.eligible_model_slugs.includes(m.slug) ?? false}
+                onClick={() => toggleModel(m.slug)}
+              />
+            ))}
           </div>
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-            {models.map((m) => {
-              const eligible = splitPreview?.eligible_model_slugs.includes(m.slug) ?? false;
-              const selected = selectedSlugs.has(m.slug);
-              return (
-                <label
-                  key={m.slug}
-                  className={`flex items-start gap-2 rounded-md border px-3 py-2 text-left text-sm ${
-                    selected
-                      ? "border-foreground bg-foreground text-background"
-                      : "border-black/15 dark:border-white/15 text-zinc-700 dark:text-zinc-300"
-                  } ${eligible ? "cursor-pointer" : "cursor-not-allowed opacity-30"}`}
-                >
-                  <input
-                    type="checkbox"
-                    disabled={!eligible}
-                    checked={selected}
-                    onChange={() => toggleModel(m.slug)}
-                    className="mt-0.5"
-                  />
-                  <span>
-                    <span className="block font-medium">{m.name}</span>
-                    <span className="block text-xs opacity-70">{familyLabel(m.family)}</span>
-                  </span>
-                </label>
-              );
-            })}
-          </div>
-        </div>
+          {!splitPreview && <p className="text-sm text-zinc-500 dark:text-zinc-400">Choose a dataset to see which models can run.</p>}
 
-        {selectedSlugs.has("tensor_ar") && (
-          <div>
-            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
-              Tensor-AR decomposition
-            </label>
-            <select
-              value={tensorArDecomposition}
-              onChange={(e) => setTensorArDecomposition(e.target.value)}
-              className="rounded-md border border-black/15 dark:border-white/15 bg-transparent px-3 py-2 text-sm text-zinc-900 dark:text-zinc-50"
-            >
-              <option value="cp">CP</option>
-              <option value="cp_puzzle">CP Puzzle</option>
-            </select>
-          </div>
-        )}
+          {selectedSlugs.has("tensor_ar") && (
+            <Field label="Tensor-AR decomposition">
+              <select
+                value={tensorArDecomposition}
+                onChange={(e) => setTensorArDecomposition(e.target.value)}
+                className={`${inputClass} sm:w-60`}
+              >
+                <option value="cp">CP</option>
+                <option value="cp_puzzle">CP Puzzle</option>
+              </select>
+            </Field>
+          )}
+        </FormSection>
+
+        </div>
 
         {submitError && <p className="text-sm text-red-600">{submitError}</p>}
 
-        <button
-          type="submit"
-          disabled={submitting || !datasetId || selectedSlugs.size === 0 || selectedColumns.length === 0}
-          className="rounded-md bg-foreground text-background px-4 py-2 text-sm font-medium disabled:opacity-50"
-        >
-          {submitting ? "Creating..." : `Run comparison (${selectedSlugs.size} model${selectedSlugs.size === 1 ? "" : "s"})`}
-        </button>
+        <div className="flex justify-end">
+          <button
+            type="submit"
+            disabled={submitting || !datasetId || selectedSlugs.size === 0 || selectedColumns.length === 0}
+            className="rounded-md bg-foreground px-6 py-3 text-base font-medium text-background disabled:opacity-50"
+          >
+            {submitting ? "Creating..." : `Run comparison (${selectedSlugs.size} model${selectedSlugs.size === 1 ? "" : "s"})`}
+          </button>
+        </div>
       </form>
     </div>
   );
