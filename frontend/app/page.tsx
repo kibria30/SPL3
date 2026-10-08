@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import ThemeToggle from "@/components/ThemeToggle";
 import Nav from "@/components/Nav";
 import ExperimentTracker from "@/components/ExperimentTracker";
 import StatTile from "@/components/StatTile";
@@ -85,6 +86,7 @@ export default function Home() {
 
   return (
     <div className="flex flex-1 flex-col bg-zinc-50 dark:bg-black">
+      <ThemeToggle floating />
       <section className="flex flex-1 flex-col items-center justify-center px-4 py-24 text-center">
         <h1 className="max-w-2xl text-4xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50 sm:text-5xl">
           Visual TS Forecasting Library

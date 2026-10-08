@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import type { Data, Layout } from "plotly.js";
+import { useIsDark } from "@/lib/theme";
 import { getPaletteMode } from "@/lib/palette";
 import { getActualColor, getModelColor } from "@/lib/modelColors";
 
@@ -23,15 +24,7 @@ interface ModelComparisonChartProps {
 
 export default function ModelComparisonChart({ featureNames, actual, entries }: ModelComparisonChartProps) {
   const [featureIndex, setFeatureIndex] = useState(0);
-  const [isDark, setIsDark] = useState(false);
-
-  useEffect(() => {
-    const mq = window.matchMedia("(prefers-color-scheme: dark)");
-    setIsDark(mq.matches);
-    const listener = (e: MediaQueryListEvent) => setIsDark(e.matches);
-    mq.addEventListener("change", listener);
-    return () => mq.removeEventListener("change", listener);
-  }, []);
+  const isDark = useIsDark();
 
   const colors = getPaletteMode(isDark);
 
