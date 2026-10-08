@@ -35,7 +35,7 @@ export default function ModelDetailPage() {
   const hasPaper = model.paper_title || model.publication || model.year || model.authors;
 
   return (
-    <div className="max-w-4xl">
+    <div>
       <Link href="/models" className="mb-3 inline-block text-sm text-zinc-500 dark:text-zinc-400 hover:underline">
         &larr; Models
       </Link>
@@ -52,8 +52,9 @@ export default function ModelDetailPage() {
         <StatCard label="Parameters set" value={hyperparams.length} />
       </div>
 
+      <div className="mb-8 grid items-start gap-6 lg:grid-cols-2">
       {model.description && (
-        <section className="mb-8">
+        <section>
           <h2 className="mb-3 text-lg font-medium text-zinc-900 dark:text-zinc-50">About</h2>
           <div className={`${CARD} p-5`}>
             <p className="text-base leading-relaxed text-zinc-700 dark:text-zinc-300">{model.description}</p>
@@ -62,7 +63,7 @@ export default function ModelDetailPage() {
       )}
 
       {hasPaper && (
-        <section className="mb-8">
+        <section>
           <h2 className="mb-3 text-lg font-medium text-zinc-900 dark:text-zinc-50">Paper</h2>
           <div className={`${CARD} p-5`}>
             {model.paper_title && <p className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">{model.paper_title}</p>}
@@ -82,6 +83,7 @@ export default function ModelDetailPage() {
           </div>
         </section>
       )}
+      </div>
 
       <section>
         <h2 className="mb-3 text-lg font-medium text-zinc-900 dark:text-zinc-50">Default hyperparameters</h2>

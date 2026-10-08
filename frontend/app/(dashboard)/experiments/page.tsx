@@ -160,7 +160,7 @@ export default function ExperimentsPage() {
                           {model.name}
                         </span>
                       ) : (
-                        <span className="text-zinc-500">#{e.model_id}</span>
+                        <span className="text-zinc-500 dark:text-zinc-400">#{e.model_id}</span>
                       )}
                     </td>
                     <td className="px-4 py-3 text-zinc-700 dark:text-zinc-300">{dataset?.name ?? `#${e.dataset_id}`}</td>

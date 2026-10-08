@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { familyLabel, listModels, type ForecastingModel } from "@/lib/models";
+import { getModelColor } from "@/lib/modelColors";
+import { useIsDark } from "@/lib/theme";
 
 const FAMILY_STYLES: Record<ForecastingModel["family"], string> = {
   classical: "bg-violet-100 text-violet-800 dark:bg-violet-900/40 dark:text-violet-300",
@@ -20,6 +22,7 @@ function hyperparamChips(m: ForecastingModel) {
 
 function ModelCard({ m }: { m: ForecastingModel }) {
   const chips = hyperparamChips(m);
+  const color = getModelColor(m.slug, useIsDark());
   return (
     <Link
       href={`/models/${m.slug}`}
@@ -39,7 +42,11 @@ function ModelCard({ m }: { m: ForecastingModel }) {
       {chips.length > 0 && (
         <div className="mt-4 flex flex-wrap gap-1.5">
           {chips.map((c) => (
-            <span key={c} className="rounded-full border border-black/10 dark:border-white/15 bg-zinc-50 dark:bg-zinc-800 px-2.5 py-0.5 font-mono text-sm text-zinc-700 dark:text-zinc-300">
+            <span
+              key={c}
+              className="rounded-full border px-2.5 py-0.5 font-mono text-sm text-zinc-800 dark:text-zinc-100"
+              style={{ backgroundColor: `${color}26`, borderColor: `${color}80` }}
+            >
               {c}
             </span>
           ))}

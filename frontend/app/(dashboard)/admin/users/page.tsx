@@ -45,26 +45,26 @@ export default function AdminUsersPage() {
       )}
 
       {users && (
-        <div className="overflow-x-auto rounded-lg border border-black/15 shadow-sm dark:border-white/10 dark:shadow-none">
-          <table className="min-w-full divide-y divide-black/10 dark:divide-white/10 text-sm">
-            <thead className="bg-zinc-100 dark:bg-zinc-900">
+        <div className="overflow-x-auto rounded-lg border border-black/15 bg-white shadow-sm dark:border-white/10 dark:bg-zinc-900 dark:shadow-none">
+          <table className="min-w-full divide-y divide-black/10 dark:divide-white/10 text-base">
+            <thead className="bg-zinc-100 dark:bg-zinc-800">
               <tr>
-                <th className="px-4 py-2 text-left font-medium text-zinc-600 dark:text-zinc-300">Name</th>
-                <th className="px-4 py-2 text-left font-medium text-zinc-600 dark:text-zinc-300">Email</th>
-                <th className="px-4 py-2 text-left font-medium text-zinc-600 dark:text-zinc-300">Role</th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-zinc-600 dark:text-zinc-300">Name</th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-zinc-600 dark:text-zinc-300">Email</th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-zinc-600 dark:text-zinc-300">Role</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-black/10 dark:divide-white/10 bg-white dark:bg-zinc-950">
+            <tbody className="divide-y divide-black/10 dark:divide-white/10 bg-white dark:bg-zinc-900">
               {users.map((u) => (
                 <tr key={u.id}>
-                  <td className="px-4 py-2 text-zinc-900 dark:text-zinc-50">{u.name}</td>
-                  <td className="px-4 py-2 text-zinc-600 dark:text-zinc-400">{u.email}</td>
-                  <td className="px-4 py-2">
+                  <td className="px-4 py-3 font-medium text-zinc-900 dark:text-zinc-50">{u.name}</td>
+                  <td className="px-4 py-3 text-zinc-600 dark:text-zinc-400">{u.email}</td>
+                  <td className="px-4 py-3">
                     <select
                       value={u.role}
                       disabled={updating === u.id}
                       onChange={(e) => handleRoleChange(u.id, e.target.value as UserRole)}
-                      className="rounded-md border border-black/15 dark:border-white/15 bg-white dark:bg-zinc-900 px-2 py-1 text-sm text-zinc-900 dark:text-zinc-50"
+                      className="rounded-md border border-black/15 dark:border-white/15 bg-white dark:bg-zinc-950 px-3 py-1.5 text-base text-zinc-900 dark:text-zinc-50"
                     >
                       <option value="user">user</option>
                       <option value="admin">admin</option>

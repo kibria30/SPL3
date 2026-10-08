@@ -1,6 +1,7 @@
 "use client";
 
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import StatusBadge from "@/components/StatusBadge";
 import ConfigPanel from "@/components/ConfigPanel";
@@ -162,6 +163,10 @@ function ComparisonViewContent() {
 
   return (
     <div>
+      <Link href="/compare" className="mb-3 inline-block text-sm text-zinc-500 dark:text-zinc-400 hover:underline">
+        &larr; Compare
+      </Link>
+
       <div className="mb-1 flex items-center justify-between">
         <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-50">{view.comparison_name ?? view.dataset_name}</h1>
         <button
@@ -235,7 +240,7 @@ function ComparisonViewContent() {
       <h2 className="text-lg font-medium text-zinc-900 dark:text-zinc-50 mb-2">Leaderboard</h2>
       <div className="mb-8 overflow-x-auto rounded-lg border border-black/15 shadow-sm dark:border-white/10 dark:shadow-none">
         <table className="min-w-full divide-y divide-black/10 dark:divide-white/10 text-sm">
-          <thead className="bg-zinc-100 dark:bg-zinc-900">
+          <thead className="bg-zinc-100 dark:bg-zinc-800">
             <tr>
               <th className="px-3 py-2 text-left font-medium text-zinc-600 dark:text-zinc-300">Model</th>
               <th className="px-3 py-2 text-left font-medium text-zinc-600 dark:text-zinc-300">Status</th>
@@ -249,7 +254,7 @@ function ComparisonViewContent() {
               <th className="px-3 py-2 text-right font-medium text-zinc-600 dark:text-zinc-300">val_ratio</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-black/10 dark:divide-white/10 bg-white dark:bg-zinc-950">
+          <tbody className="divide-y divide-black/10 dark:divide-white/10 bg-white dark:bg-zinc-900">
             {sortedEntries.map((e) => (
               <tr key={e.experiment.id}>
                 <td className="px-3 py-2 font-medium text-zinc-900 dark:text-zinc-50">{e.model_name}</td>

@@ -70,7 +70,7 @@ export default function ModelComparisonChart({ featureNames, actual, entries }: 
           <button
             key={name}
             onClick={() => setFeatureIndex(i)}
-            className={`rounded-full px-3 py-1 text-xs font-medium border ${
+            className={`rounded-full px-3 py-1 text-sm font-medium border ${
               i === featureIndex
                 ? "bg-foreground text-background border-transparent"
                 : "border-black/15 dark:border-white/15 text-zinc-600 dark:text-zinc-300"

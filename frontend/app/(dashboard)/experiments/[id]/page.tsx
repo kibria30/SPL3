@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import ForecastChart from "@/components/ForecastChart";
 import StatusBadge from "@/components/StatusBadge";
@@ -51,7 +52,7 @@ function TrainingProgress({ experiment }: { experiment: Experiment }) {
   }, [experiment.training_log]);
 
   return (
-    <div className="rounded-md border border-black/15 dark:border-white/10 p-4">
+    <div className="rounded-lg border border-black/15 shadow-sm dark:border-white/10 dark:shadow-none bg-white dark:bg-zinc-900 p-5">
       <div className="mb-2 flex items-center justify-between text-sm text-zinc-600 dark:text-zinc-400">
         <span>
           {epoch && total ? `Epoch ${epoch} / ${total}` : "Starting training..."}
@@ -112,7 +113,7 @@ function AnomalyPanel({
   );
   flagged.sort((a, b) => b.residual - a.residual);
 
-  const inputClass = "w-24 rounded-md border border-black/15 dark:border-white/15 bg-transparent px-2 py-1 text-sm";
+  const inputClass = "w-24 rounded-md border border-black/15 dark:border-white/15 bg-white dark:bg-zinc-950 px-2.5 py-1.5 text-base text-zinc-900 dark:text-zinc-50";
 
   return (
     <div className="mb-8 space-y-4">
@@ -137,7 +138,7 @@ function AnomalyPanel({
           />
         </label>
       </div>
-      <p className="text-xs text-zinc-500 dark:text-zinc-400">
+      <p className="text-sm text-zinc-500 dark:text-zinc-400">
         Thresholds (normalized units):{" "}
         {series.feature_names.map((n, j) => `${n} ${anomaly.thresholds[j].toFixed(3)}`).join(" · ")}.
         Changes here preview the flags; they are not saved to the experiment.
@@ -145,14 +146,14 @@ function AnomalyPanel({
       {flagged.length > 0 && (
         <div className="max-h-64 overflow-auto rounded-lg border border-black/15 shadow-sm dark:border-white/10 dark:shadow-none">
           <table className="min-w-full divide-y divide-black/10 dark:divide-white/10 text-sm">
-            <thead className="bg-zinc-100 dark:bg-zinc-900">
+            <thead className="bg-zinc-100 dark:bg-zinc-800">
               <tr>
                 {["Step", "Feature", "Actual", "Predicted", "|Residual|"].map((h) => (
                   <th key={h} className="px-3 py-2 text-left font-medium text-zinc-600 dark:text-zinc-300">{h}</th>
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-black/10 dark:divide-white/10 bg-white dark:bg-zinc-950 text-zinc-700 dark:text-zinc-300">
+            <tbody className="divide-y divide-black/10 dark:divide-white/10 bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300">
               {flagged.map((f) => (
                 <tr key={`${f.step}-${f.feature}`}>
                   <td className="px-3 py-1.5">{f.step}</td>
@@ -256,6 +257,10 @@ export default function ExperimentDetailPage() {
 
   return (
     <div>
+      <Link href="/experiments" className="mb-3 inline-block text-sm text-zinc-500 dark:text-zinc-400 hover:underline">
+        &larr; Experiments
+      </Link>
+
       <div className="mb-6 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-50">{experiment.experiment_name}</h1>
@@ -368,7 +373,7 @@ export default function ExperimentDetailPage() {
           <h2 className="text-lg font-medium text-zinc-900 dark:text-zinc-50 mb-2">Metrics</h2>
           <div className="mb-6 overflow-x-auto rounded-lg border border-black/15 shadow-sm dark:border-white/10 dark:shadow-none">
             <table className="min-w-full divide-y divide-black/10 dark:divide-white/10 text-sm">
-              <thead className="bg-zinc-100 dark:bg-zinc-900">
+              <thead className="bg-zinc-100 dark:bg-zinc-800">
                 <tr>
                   <th className="px-3 py-2 text-left font-medium text-zinc-600 dark:text-zinc-300">Feature</th>
                   {METRIC_COLUMNS.map((m) => (
@@ -378,7 +383,7 @@ export default function ExperimentDetailPage() {
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-black/10 dark:divide-white/10 bg-white dark:bg-zinc-950">
+              <tbody className="divide-y divide-black/10 dark:divide-white/10 bg-white dark:bg-zinc-900">
                 {result.metrics_per_feature.map((row) => (
                   <tr key={row.Feature}>
                     <td className="px-3 py-2 text-zinc-900 dark:text-zinc-50">{row.Feature}</td>
@@ -389,7 +394,7 @@ export default function ExperimentDetailPage() {
                     ))}
                   </tr>
                 ))}
-                <tr className="bg-zinc-50 dark:bg-zinc-900 font-medium">
+                <tr className="bg-zinc-50 dark:bg-zinc-800/60 font-medium">
                   <td className="px-3 py-2 text-zinc-900 dark:text-zinc-50">Average</td>
                   {METRIC_COLUMNS.map((m) => (
                     <td key={m} className="px-3 py-2 text-right text-zinc-900 dark:text-zinc-50">

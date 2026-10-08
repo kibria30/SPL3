@@ -10,7 +10,7 @@ import StatusBadge from "@/components/StatusBadge";
 import ThemeToggle from "@/components/ThemeToggle";
 import { fetchCurrentUser } from "@/lib/auth";
 import { listExperiments, type Experiment } from "@/lib/experiments";
-import { familyLabel, listModels, type ForecastingModel } from "@/lib/models";
+import { listModels, type ForecastingModel } from "@/lib/models";
 import { getPlatformStats, type PlatformStats } from "@/lib/stats";
 import type { User } from "@/lib/types";
 
@@ -100,7 +100,6 @@ function Overview({ user, stats }: { user: User; stats: PlatformStats | null }) 
                         <span className="min-w-0 flex-1 truncate text-base font-medium text-zinc-900 dark:text-zinc-50">{e.experiment_name}</span>
                         <span className="text-base text-zinc-700 dark:text-zinc-300">
                           {model?.name ?? `#${e.model_id}`}
-                          {model && <span className="ml-2 text-sm text-zinc-500 dark:text-zinc-400">{familyLabel(model.family)}</span>}
                         </span>
                         <StatusBadge status={e.status} />
                         <span className="w-40 text-right text-sm text-zinc-500 dark:text-zinc-400">{new Date(e.created_at).toLocaleDateString()}</span>

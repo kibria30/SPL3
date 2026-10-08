@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import ThemeToggle from "@/components/ThemeToggle";
+import { inputClass } from "@/components/form";
 import { registerUser } from "@/lib/auth";
 import { ApiError } from "@/lib/api";
 
@@ -35,23 +36,23 @@ export default function RegisterPage() {
       <ThemeToggle floating />
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-sm rounded-lg border border-black/15 shadow-sm dark:border-white/10 dark:shadow-none bg-white dark:bg-zinc-900 p-8 shadow-sm"
+        className="w-full max-w-sm rounded-lg border border-black/15 shadow-sm dark:border-white/10 dark:shadow-none bg-white dark:bg-zinc-900 p-8"
       >
-        <h1 className="text-xl font-semibold mb-6 text-zinc-900 dark:text-zinc-50">
+        <h1 className="mb-6 text-2xl font-semibold text-zinc-900 dark:text-zinc-50">
           Create an account
         </h1>
 
-        <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+        <label className="mb-1.5 block text-base font-medium text-zinc-700 dark:text-zinc-300">
           Name
         </label>
         <input
           required
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="w-full mb-4 rounded-md border border-black/15 dark:border-white/15 bg-transparent px-3 py-2 text-sm text-zinc-900 dark:text-zinc-50"
+          className={`${inputClass} mb-4`}
         />
 
-        <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+        <label className="mb-1.5 block text-base font-medium text-zinc-700 dark:text-zinc-300">
           Email
         </label>
         <input
@@ -59,10 +60,10 @@ export default function RegisterPage() {
           required
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full mb-4 rounded-md border border-black/15 dark:border-white/15 bg-transparent px-3 py-2 text-sm text-zinc-900 dark:text-zinc-50"
+          className={`${inputClass} mb-4`}
         />
 
-        <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+        <label className="mb-1.5 block text-base font-medium text-zinc-700 dark:text-zinc-300">
           Password
         </label>
         <input
@@ -71,20 +72,20 @@ export default function RegisterPage() {
           minLength={8}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full mb-4 rounded-md border border-black/15 dark:border-white/15 bg-transparent px-3 py-2 text-sm text-zinc-900 dark:text-zinc-50"
+          className={`${inputClass} mb-4`}
         />
 
-        {error && <p className="mb-4 text-sm text-red-600">{error}</p>}
+        {error && <p className="mb-4 text-base text-red-600">{error}</p>}
 
         <button
           type="submit"
           disabled={pending}
-          className="w-full rounded-md bg-foreground text-background py-2 text-sm font-medium disabled:opacity-50"
+          className="w-full rounded-md bg-foreground py-2.5 text-base font-medium text-background disabled:opacity-50"
         >
           {pending ? "Creating account..." : "Register"}
         </button>
 
-        <p className="mt-4 text-sm text-zinc-600 dark:text-zinc-400">
+        <p className="mt-4 text-base text-zinc-600 dark:text-zinc-400">
           Already have an account?{" "}
           <Link href="/login" className="font-medium underline">
             Log in
