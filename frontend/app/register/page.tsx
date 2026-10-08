@@ -31,7 +31,7 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="flex flex-1 items-center justify-center bg-zinc-200 dark:bg-black px-4">
+    <div className="flex flex-1 items-center justify-center bg-zinc-100 dark:bg-black px-4">
       <ThemeToggle floating />
       <form
         onSubmit={handleSubmit}
