@@ -29,3 +29,23 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Landing-page forecast illustration: the lines draw in once on load. */
+.draw-line {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: draw-line 1.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes draw-line {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .draw-line {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+}
