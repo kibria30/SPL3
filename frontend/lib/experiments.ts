@@ -76,10 +76,14 @@ export interface SplitPreview {
   train_len: number;
   val_len: number;
   train_fit_len: number;
+  test_len: number;
+  train_windows: number;
   has_train_data: boolean;
   dl_eligible: boolean;
   eligible_model_slugs: string[];
   ineligible_reason: string | null;
+  recommended_test_periods: number | null;
+  recommended_input_periods: number | null;
 }
 
 export function listExperiments() {

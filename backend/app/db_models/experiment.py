@@ -31,8 +31,8 @@ class Experiment(Base):
 
     # period-based split params (see forecasting/datasets/period_split.py) -- NOT ratio-based;
     # tsf_compare's standard_split()/ratio scheme is only used by its own standalone CLI.
-    test_periods: Mapped[int] = mapped_column(Integer)   # 8-25
-    input_periods: Mapped[int] = mapped_column(Integer)  # 5-20, < test_periods
+    test_periods: Mapped[int] = mapped_column(Integer)   # 3-25
+    input_periods: Mapped[int] = mapped_column(Integer)  # 1-20, < test_periods
     output_periods: Mapped[int] = mapped_column(Integer)  # derived = test_periods - input_periods
     period_length: Mapped[int] = mapped_column(Integer)   # snapshot of Dataset.period_length at run time
     seq_len: Mapped[int] = mapped_column(Integer)          # derived snapshot = input_periods * period_length

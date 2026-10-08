@@ -113,8 +113,8 @@ models, need a real train/validation split large enough for at least one input+o
 
 Unlike a simple ratio split, the app carves the test window off in units of the dataset's natural
 seasonal *period* (`period_length`, e.g. 24 hours, 52 weeks):
-- `test_periods` (8–25) — total periods held out for evaluation.
-- `input_periods` (5–20, must be `< test_periods`) — of those, how many periods form the model's
+- `test_periods` (3–25) — total periods held out for evaluation.
+- `input_periods` (1–20, must be `< test_periods`) — of those, how many periods form the model's
   input window; the remainder (`output_periods = test_periods − input_periods`) is the forecast
   horizon.
 - Everything before the test window is `train_series`.
@@ -128,11 +128,14 @@ models.
 Before an experiment can be created, `compute_eligibility()` determines which models can actually
 run against the chosen split:
 - Classical models are **always** eligible (they only ever need the eval input window).
-- Trained models need `train_fit_len >= seq_len+pred_len` **and** `val_len >= seq_len+pred_len` —
-  stricter than "any train data at all," because the underlying window-building step needs at
-  least one full window from each of train and validation independently. If the dataset/split
-  combination can't support this, trained models are excluded with an explanatory reason string
-  shown in the UI.
+- Trained models need all of: `train_fit_len >= seq_len+pred_len`, `val_len >= pred_len`, and at
+  least `MIN_TRAIN_WINDOWS` (100) training windows. The validation segment carries `seq_len` rows of
+  look-back taken from the end of the fit portion (as in the standard LTSF split), so it only has to
+  hold the forecast targets rather than a whole window. If the dataset/split combination can't support
+  this, trained models are excluded with a reason string naming the failed condition, shown in the UI.
+- `recommend_split()` returns the largest test window (up to 10 periods) on which trained models still
+  run; the new-experiment and new-comparison forms move their sliders to it when a dataset is picked.
+  Shorter test windows leave more data for training, at the cost of a noisier single-window score.
 
 ### 7.3 Family-aware fitting
 
