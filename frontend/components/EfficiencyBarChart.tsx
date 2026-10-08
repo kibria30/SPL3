@@ -58,5 +58,9 @@ export default function EfficiencyBarChart({ title, entries, valueSuffix = "" }:
 
   if (entries.length === 0) return null;
 
-  return <Plot data={data} layout={layout} style={{ width: "100%" }} config={{ responsive: true, displaylogo: false }} />;
+  return (
+    <div className="rounded-lg border border-black/15 shadow-sm dark:border-white/10 dark:shadow-none p-2 overflow-hidden" style={{ backgroundColor: colors.surface }}>
+      <Plot data={data} layout={layout} style={{ width: "100%" }} config={{ responsive: true, displaylogo: false }} />
+    </div>
+  );
 }

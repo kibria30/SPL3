@@ -39,7 +39,7 @@ export default function DatasetsPage() {
       )}
 
       {datasets && (
-        <div className="overflow-x-auto rounded-lg border border-black/10 dark:border-white/10">
+        <div className="overflow-x-auto rounded-lg border border-black/15 shadow-sm dark:border-white/10 dark:shadow-none">
           <table className="min-w-full divide-y divide-black/10 dark:divide-white/10 text-sm">
             <thead className="bg-zinc-100 dark:bg-zinc-900">
               <tr>

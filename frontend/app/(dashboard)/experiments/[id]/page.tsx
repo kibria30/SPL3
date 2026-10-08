@@ -51,7 +51,7 @@ function TrainingProgress({ experiment }: { experiment: Experiment }) {
   }, [experiment.training_log]);
 
   return (
-    <div className="rounded-md border border-black/10 dark:border-white/10 p-4">
+    <div className="rounded-md border border-black/15 dark:border-white/10 p-4">
       <div className="mb-2 flex items-center justify-between text-sm text-zinc-600 dark:text-zinc-400">
         <span>
           {epoch && total ? `Epoch ${epoch} / ${total}` : "Starting training..."}
@@ -112,7 +112,7 @@ function AnomalyPanel({
   );
   flagged.sort((a, b) => b.residual - a.residual);
 
-  const inputClass = "w-24 rounded-md border border-black/10 dark:border-white/15 bg-transparent px-2 py-1 text-sm";
+  const inputClass = "w-24 rounded-md border border-black/15 dark:border-white/15 bg-transparent px-2 py-1 text-sm";
 
   return (
     <div className="mb-8 space-y-4">
@@ -143,7 +143,7 @@ function AnomalyPanel({
         Changes here preview the flags; they are not saved to the experiment.
       </p>
       {flagged.length > 0 && (
-        <div className="max-h-64 overflow-auto rounded-lg border border-black/10 dark:border-white/10">
+        <div className="max-h-64 overflow-auto rounded-lg border border-black/15 shadow-sm dark:border-white/10 dark:shadow-none">
           <table className="min-w-full divide-y divide-black/10 dark:divide-white/10 text-sm">
             <thead className="bg-zinc-100 dark:bg-zinc-900">
               <tr>
@@ -363,7 +363,7 @@ export default function ExperimentDetailPage() {
 
           {!isAnomaly && <>
           <h2 className="text-lg font-medium text-zinc-900 dark:text-zinc-50 mb-2">Metrics</h2>
-          <div className="mb-6 overflow-x-auto rounded-lg border border-black/10 dark:border-white/10">
+          <div className="mb-6 overflow-x-auto rounded-lg border border-black/15 shadow-sm dark:border-white/10 dark:shadow-none">
             <table className="min-w-full divide-y divide-black/10 dark:divide-white/10 text-sm">
               <thead className="bg-zinc-100 dark:bg-zinc-900">
                 <tr>

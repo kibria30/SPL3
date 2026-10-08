@@ -88,7 +88,7 @@ export default function AdminDatasetsPage() {
             {systemDatasets.map((d) => (
               <div
                 key={d.id}
-                className="flex items-center justify-between rounded-md border border-black/10 dark:border-white/10 px-4 py-3"
+                className="flex items-center justify-between rounded-md border border-black/15 dark:border-white/10 px-4 py-3"
               >
                 <div>
                   <p className="font-medium text-zinc-900 dark:text-zinc-50">{d.name}</p>
@@ -115,7 +115,7 @@ export default function AdminDatasetsPage() {
             {userDatasets.map((d) => (
               <div
                 key={d.id}
-                className="flex items-center justify-between rounded-md border border-black/10 dark:border-white/10 px-4 py-3"
+                className="flex items-center justify-between rounded-md border border-black/15 dark:border-white/10 px-4 py-3"
               >
                 <div>
                   <p className="font-medium text-zinc-900 dark:text-zinc-50">{d.name}</p>
@@ -128,7 +128,7 @@ export default function AdminDatasetsPage() {
                     value={d.visibility}
                     disabled={busyId === d.id}
                     onChange={(e) => handleVisibilityChange(d.id, e.target.value as DatasetVisibility)}
-                    className="rounded-md border border-black/10 dark:border-white/10 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 px-2 py-1.5 text-sm"
+                    className="rounded-md border border-black/15 dark:border-white/10 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 px-2 py-1.5 text-sm"
                   >
                     {VISIBILITY_OPTIONS.map((v) => (
                       <option key={v} value={v}>

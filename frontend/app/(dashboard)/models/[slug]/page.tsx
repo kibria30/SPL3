@@ -87,7 +87,7 @@ export default function ModelDetailPage() {
         <p className="mb-2 text-xs text-zinc-500 dark:text-zinc-400">
           Editable per experiment when this model is selected in the experiment creation form.
         </p>
-        <pre className="overflow-x-auto rounded-md border border-black/10 dark:border-white/10 bg-zinc-50 dark:bg-zinc-900 p-3 text-xs text-zinc-900 dark:text-zinc-50">
+        <pre className="overflow-x-auto rounded-md border border-black/15 dark:border-white/10 bg-zinc-50 dark:bg-zinc-900 p-3 text-xs text-zinc-900 dark:text-zinc-50">
           {JSON.stringify(model.default_hyperparams, null, 2)}
         </pre>
       </section>

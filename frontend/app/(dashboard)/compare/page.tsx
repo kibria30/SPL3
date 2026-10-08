@@ -68,7 +68,7 @@ export default function ComparePage() {
             <Link
               key={`${g.dataset_id}-${g.test_periods}-${g.input_periods}-${g.period_length}-${g.selected_columns?.join("|") ?? "all"}`}
               href={`/compare/view?${comparisonQuery(g.dataset_id, g.test_periods, g.input_periods, g.selected_columns)}`}
-              className="rounded-lg border border-black/10 dark:border-white/10 bg-white dark:bg-zinc-900 p-4 hover:border-black/20 dark:hover:border-white/20"
+              className="rounded-lg border border-black/15 shadow-sm dark:border-white/10 dark:shadow-none bg-white dark:bg-zinc-900 p-4 hover:border-black/20 dark:hover:border-white/20"
             >
               <p className="font-medium text-zinc-900 dark:text-zinc-50">{g.dataset_name}</p>
               <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">

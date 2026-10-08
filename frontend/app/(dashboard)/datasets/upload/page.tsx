@@ -73,7 +73,7 @@ export default function UploadDatasetPage() {
             return (
               <label
                 key={c.name}
-                className={`flex items-center gap-3 rounded-md border border-black/10 dark:border-white/10 px-3 py-2 text-sm ${
+                className={`flex items-center gap-3 rounded-md border border-black/15 dark:border-white/10 px-3 py-2 text-sm ${
                   isNumeric ? "" : "opacity-40"
                 }`}
               >
@@ -115,7 +115,7 @@ export default function UploadDatasetPage() {
             required
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full rounded-md border border-black/10 dark:border-white/15 bg-transparent px-3 py-2 text-sm text-zinc-900 dark:text-zinc-50"
+            className="w-full rounded-md border border-black/15 dark:border-white/15 bg-transparent px-3 py-2 text-sm text-zinc-900 dark:text-zinc-50"
           />
         </div>
 
@@ -126,7 +126,7 @@ export default function UploadDatasetPage() {
           <select
             value={frequency}
             onChange={(e) => setFrequency(e.target.value)}
-            className="w-full rounded-md border border-black/10 dark:border-white/15 bg-white dark:bg-zinc-900 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-50"
+            className="w-full rounded-md border border-black/15 dark:border-white/15 bg-white dark:bg-zinc-900 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-50"
           >
             <option value="hourly">Hourly</option>
             <option value="daily">Daily</option>
@@ -146,7 +146,7 @@ export default function UploadDatasetPage() {
             required
             value={periodLength}
             onChange={(e) => setPeriodLength(Number(e.target.value))}
-            className="w-full rounded-md border border-black/10 dark:border-white/15 bg-transparent px-3 py-2 text-sm text-zinc-900 dark:text-zinc-50"
+            className="w-full rounded-md border border-black/15 dark:border-white/15 bg-transparent px-3 py-2 text-sm text-zinc-900 dark:text-zinc-50"
           />
         </div>
 

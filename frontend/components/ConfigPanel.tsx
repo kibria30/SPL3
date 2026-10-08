@@ -14,7 +14,7 @@ export interface ConfigGroup {
 // Read-only summary of how a run was configured: grouped label/value cells instead of a sentence.
 export default function ConfigPanel({ groups }: { groups: ConfigGroup[] }) {
   return (
-    <section className="mb-6 rounded-lg border border-black/10 dark:border-white/10 bg-white dark:bg-zinc-900 p-5">
+    <section className="mb-6 rounded-lg border border-black/15 shadow-sm dark:border-white/10 dark:shadow-none bg-white dark:bg-zinc-900 p-5">
       <h2 className="mb-4 text-base font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
         Configuration
       </h2>
@@ -37,7 +37,7 @@ export default function ConfigPanel({ groups }: { groups: ConfigGroup[] }) {
                 {g.chips.map((c) => (
                   <span
                     key={c.label}
-                    className="rounded-full border border-black/10 dark:border-white/15 bg-zinc-50 dark:bg-zinc-800 px-2.5 py-1 font-mono text-sm text-zinc-700 dark:text-zinc-300"
+                    className="rounded-full border border-black/15 dark:border-white/15 bg-zinc-50 dark:bg-zinc-800 px-2.5 py-1 font-mono text-sm text-zinc-700 dark:text-zinc-300"
                   >
                     {c.label} = {c.value}
                   </span>

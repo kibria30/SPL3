@@ -33,7 +33,7 @@ export default function Nav() {
   ];
 
   return (
-    <nav className="sticky top-0 z-50 border-b border-black/10 dark:border-white/10 bg-white dark:bg-zinc-950">
+    <nav className="sticky top-0 z-50 border-b border-black/15 dark:border-white/10 bg-white dark:bg-zinc-950">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
         <div className="flex items-center gap-6">
           <Link href="/" className="font-semibold text-zinc-900 dark:text-zinc-50">

@@ -19,7 +19,7 @@ export default function SplitWindows({ preview, testPeriods, inputPeriods, frequ
   ];
 
   return (
-    <div className="grid grid-cols-2 gap-3 rounded-md border border-black/10 dark:border-white/10 p-4 sm:grid-cols-4">
+    <div className="grid grid-cols-2 gap-3 rounded-md border border-black/15 dark:border-white/10 p-4 sm:grid-cols-4">
       {cells.map((c) => (
         <div key={c.label}>
           <p className="text-sm text-zinc-500 dark:text-zinc-400">{c.label}</p>

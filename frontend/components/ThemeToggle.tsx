@@ -13,7 +13,7 @@ export default function ThemeToggle({ floating = false }: { floating?: boolean }
       onClick={() => setTheme(isDark ? "light" : "dark")}
       aria-label={label}
       title={label}
-      className={`flex h-9 w-9 items-center justify-center rounded-full border border-black/10 dark:border-white/15 bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 ${
+      className={`flex h-9 w-9 items-center justify-center rounded-full border border-black/15 dark:border-white/15 bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 ${
         floating ? "fixed right-4 top-4 z-50" : ""
       }`}
     >

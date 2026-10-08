@@ -13,7 +13,7 @@ interface StatTileProps {
 
 export default function StatTile({ label, value }: StatTileProps) {
   return (
-    <div className="rounded-xl border border-black/10 dark:border-white/10 bg-white dark:bg-zinc-900 px-6 py-8 text-center">
+    <div className="rounded-xl border border-black/15 shadow-sm dark:border-white/10 dark:shadow-none bg-white dark:bg-zinc-900 px-6 py-8 text-center">
       {/* Hero-figure sizing (>=48px) per the stat-tile spec; proportional figures, not
           tabular-nums -- this is a standalone value, not a column that needs to align. */}
       <p className="text-5xl font-semibold text-zinc-900 dark:text-zinc-50">{formatCompact(value)}</p>

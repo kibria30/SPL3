@@ -38,7 +38,7 @@ export default function ModelsPage() {
             <Link
               key={m.slug}
               href={`/models/${m.slug}`}
-              className="rounded-lg border border-black/10 dark:border-white/10 bg-white dark:bg-zinc-950 p-4 hover:border-black/20 dark:hover:border-white/20"
+              className="rounded-lg border border-black/15 shadow-sm dark:border-white/10 dark:shadow-none bg-white dark:bg-zinc-950 p-4 hover:border-black/20 dark:hover:border-white/20"
             >
               <div className="mb-2 flex items-center justify-between">
                 <h2 className="font-medium text-zinc-900 dark:text-zinc-50">{m.name}</h2>

@@ -36,7 +36,7 @@ export default function Home() {
 
   if (user) {
     return (
-      <div className="flex flex-1 flex-col bg-zinc-50 dark:bg-black">
+      <div className="flex flex-1 flex-col bg-zinc-200 dark:bg-black">
         <Nav />
         <main className="mx-auto w-full max-w-6xl flex-1 px-6 py-10">
           <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-50">
@@ -60,7 +60,7 @@ export default function Home() {
               <Link
                 key={s.href}
                 href={s.href}
-                className="rounded-lg border border-black/10 dark:border-white/10 bg-white dark:bg-zinc-900 p-4 hover:border-black/20 dark:hover:border-white/20"
+                className="rounded-lg border border-black/15 shadow-sm dark:border-white/10 dark:shadow-none bg-white dark:bg-zinc-900 p-4 hover:border-black/20 dark:hover:border-white/20"
               >
                 <p className="font-medium text-zinc-900 dark:text-zinc-50">{s.label}</p>
                 <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">{s.description}</p>
@@ -69,7 +69,7 @@ export default function Home() {
             {user.role === "admin" && (
               <Link
                 href="/admin"
-                className="rounded-lg border border-black/10 dark:border-white/10 bg-white dark:bg-zinc-900 p-4 hover:border-black/20 dark:hover:border-white/20"
+                className="rounded-lg border border-black/15 shadow-sm dark:border-white/10 dark:shadow-none bg-white dark:bg-zinc-900 p-4 hover:border-black/20 dark:hover:border-white/20"
               >
                 <p className="font-medium text-zinc-900 dark:text-zinc-50">Admin</p>
                 <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
@@ -85,7 +85,7 @@ export default function Home() {
   }
 
   return (
-    <div className="flex flex-1 flex-col bg-zinc-50 dark:bg-black">
+    <div className="flex flex-1 flex-col bg-zinc-200 dark:bg-black">
       <ThemeToggle floating />
       <section className="flex flex-1 flex-col items-center justify-center px-4 py-24 text-center">
         <h1 className="max-w-2xl text-4xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50 sm:text-5xl">
@@ -104,7 +104,7 @@ export default function Home() {
           </Link>
           <Link
             href="/register"
-            className="rounded-full border border-black/10 dark:border-white/15 px-6 py-2 text-sm font-medium text-zinc-900 dark:text-zinc-50"
+            className="rounded-full border border-black/15 dark:border-white/15 px-6 py-2 text-sm font-medium text-zinc-900 dark:text-zinc-50"
           >
             Register
           </Link>
@@ -112,7 +112,7 @@ export default function Home() {
       </section>
 
       {stats && (
-        <section className="border-t border-black/10 dark:border-white/10 bg-white dark:bg-zinc-950 px-4 py-16">
+        <section className="border-t border-black/15 dark:border-white/10 bg-white dark:bg-zinc-950 px-4 py-16">
           <div className="mx-auto grid max-w-4xl grid-cols-1 gap-4 sm:grid-cols-3">
             <StatTile label="Datasets" value={stats.dataset_count} />
             <StatTile label="Forecasting models" value={stats.model_count} />

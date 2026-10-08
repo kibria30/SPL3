@@ -45,7 +45,7 @@ export default function AdminUsersPage() {
       )}
 
       {users && (
-        <div className="overflow-x-auto rounded-lg border border-black/10 dark:border-white/10">
+        <div className="overflow-x-auto rounded-lg border border-black/15 shadow-sm dark:border-white/10 dark:shadow-none">
           <table className="min-w-full divide-y divide-black/10 dark:divide-white/10 text-sm">
             <thead className="bg-zinc-100 dark:bg-zinc-900">
               <tr>
@@ -64,7 +64,7 @@ export default function AdminUsersPage() {
                       value={u.role}
                       disabled={updating === u.id}
                       onChange={(e) => handleRoleChange(u.id, e.target.value as UserRole)}
-                      className="rounded-md border border-black/10 dark:border-white/15 bg-white dark:bg-zinc-900 px-2 py-1 text-sm text-zinc-900 dark:text-zinc-50"
+                      className="rounded-md border border-black/15 dark:border-white/15 bg-white dark:bg-zinc-900 px-2 py-1 text-sm text-zinc-900 dark:text-zinc-50"
                     >
                       <option value="user">user</option>
                       <option value="admin">admin</option>

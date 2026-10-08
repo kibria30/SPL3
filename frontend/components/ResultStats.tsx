@@ -16,7 +16,7 @@ function formatDuration(seconds: number): string {
 
 function Tile({ label, value, tag }: { label: string; value: string; tag?: string | null }) {
   return (
-    <div className="rounded-lg border border-black/10 dark:border-white/10 bg-white dark:bg-zinc-900 px-5 py-4">
+    <div className="rounded-lg border border-black/15 shadow-sm dark:border-white/10 dark:shadow-none bg-white dark:bg-zinc-900 px-5 py-4">
       <p className="text-sm font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">{label}</p>
       <p className="mt-1 text-3xl font-semibold leading-tight text-zinc-900 dark:text-zinc-50">{value}</p>
       {tag && (

@@ -64,7 +64,7 @@ export default function ModelComparisonChart({ featureNames, actual, entries }: 
   }, [actual, entries, featureIndex, colors, featureNames, isDark]);
 
   return (
-    <div>
+    <div className="rounded-lg border border-black/15 shadow-sm dark:border-white/10 dark:shadow-none p-4" style={{ backgroundColor: colors.surface }}>
       <div className="mb-3 flex flex-wrap gap-2">
         {featureNames.map((name, i) => (
           <button
@@ -73,7 +73,7 @@ export default function ModelComparisonChart({ featureNames, actual, entries }: 
             className={`rounded-full px-3 py-1 text-xs font-medium border ${
               i === featureIndex
                 ? "bg-foreground text-background border-transparent"
-                : "border-black/10 dark:border-white/15 text-zinc-600 dark:text-zinc-300"
+                : "border-black/15 dark:border-white/15 text-zinc-600 dark:text-zinc-300"
             }`}
           >
             {name}

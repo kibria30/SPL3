@@ -31,11 +31,11 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="flex flex-1 items-center justify-center bg-zinc-50 dark:bg-black px-4">
+    <div className="flex flex-1 items-center justify-center bg-zinc-200 dark:bg-black px-4">
       <ThemeToggle floating />
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-sm rounded-lg border border-black/10 dark:border-white/10 bg-white dark:bg-zinc-900 p-8 shadow-sm"
+        className="w-full max-w-sm rounded-lg border border-black/15 shadow-sm dark:border-white/10 dark:shadow-none bg-white dark:bg-zinc-900 p-8 shadow-sm"
       >
         <h1 className="text-xl font-semibold mb-6 text-zinc-900 dark:text-zinc-50">
           Create an account
@@ -48,7 +48,7 @@ export default function RegisterPage() {
           required
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="w-full mb-4 rounded-md border border-black/10 dark:border-white/15 bg-transparent px-3 py-2 text-sm text-zinc-900 dark:text-zinc-50"
+          className="w-full mb-4 rounded-md border border-black/15 dark:border-white/15 bg-transparent px-3 py-2 text-sm text-zinc-900 dark:text-zinc-50"
         />
 
         <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
@@ -59,7 +59,7 @@ export default function RegisterPage() {
           required
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full mb-4 rounded-md border border-black/10 dark:border-white/15 bg-transparent px-3 py-2 text-sm text-zinc-900 dark:text-zinc-50"
+          className="w-full mb-4 rounded-md border border-black/15 dark:border-white/15 bg-transparent px-3 py-2 text-sm text-zinc-900 dark:text-zinc-50"
         />
 
         <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
@@ -71,7 +71,7 @@ export default function RegisterPage() {
           minLength={8}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full mb-4 rounded-md border border-black/10 dark:border-white/15 bg-transparent px-3 py-2 text-sm text-zinc-900 dark:text-zinc-50"
+          className="w-full mb-4 rounded-md border border-black/15 dark:border-white/15 bg-transparent px-3 py-2 text-sm text-zinc-900 dark:text-zinc-50"
         />
 
         {error && <p className="mb-4 text-sm text-red-600">{error}</p>}

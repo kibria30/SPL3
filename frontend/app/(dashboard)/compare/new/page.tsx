@@ -129,7 +129,7 @@ export default function NewComparisonPage() {
             value={namePrefix}
             onChange={(e) => setNamePrefix(e.target.value)}
             placeholder="e.g. ILI baseline sweep"
-            className="w-full rounded-md border border-black/10 dark:border-white/15 bg-transparent px-3 py-2 text-sm text-zinc-900 dark:text-zinc-50"
+            className="w-full rounded-md border border-black/15 dark:border-white/15 bg-transparent px-3 py-2 text-sm text-zinc-900 dark:text-zinc-50"
           />
         </div>
 
@@ -149,7 +149,7 @@ export default function NewComparisonPage() {
               }
               setExcludedColumns([]);  // every column starts checked
             }}
-            className="w-full rounded-md border border-black/10 dark:border-white/15 bg-white dark:bg-zinc-900 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-50"
+            className="w-full rounded-md border border-black/15 dark:border-white/15 bg-white dark:bg-zinc-900 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-50"
           >
             <option value="" disabled>
               Select a dataset
@@ -177,7 +177,7 @@ export default function NewComparisonPage() {
                 </button>
               </div>
             </div>
-            <div className="max-h-48 overflow-y-auto grid grid-cols-2 gap-x-4 gap-y-1 rounded-md border border-black/10 dark:border-white/15 p-3 sm:grid-cols-3">
+            <div className="max-h-48 overflow-y-auto grid grid-cols-2 gap-x-4 gap-y-1 rounded-md border border-black/15 dark:border-white/15 p-3 sm:grid-cols-3">
               {selectedDataset.selected_columns.map((name) => (
                 <label key={name} className="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-300">
                   <input
@@ -288,7 +288,7 @@ export default function NewComparisonPage() {
                   className={`flex items-start gap-2 rounded-md border px-3 py-2 text-left text-sm ${
                     selected
                       ? "border-foreground bg-foreground text-background"
-                      : "border-black/10 dark:border-white/15 text-zinc-700 dark:text-zinc-300"
+                      : "border-black/15 dark:border-white/15 text-zinc-700 dark:text-zinc-300"
                   } ${eligible ? "cursor-pointer" : "cursor-not-allowed opacity-30"}`}
                 >
                   <input
@@ -316,7 +316,7 @@ export default function NewComparisonPage() {
             <select
               value={tensorArDecomposition}
               onChange={(e) => setTensorArDecomposition(e.target.value)}
-              className="rounded-md border border-black/10 dark:border-white/15 bg-transparent px-3 py-2 text-sm text-zinc-900 dark:text-zinc-50"
+              className="rounded-md border border-black/15 dark:border-white/15 bg-transparent px-3 py-2 text-sm text-zinc-900 dark:text-zinc-50"
             >
               <option value="cp">CP</option>
               <option value="cp_puzzle">CP Puzzle</option>

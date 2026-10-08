@@ -140,7 +140,7 @@ export default function NewExperimentPage() {
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
           <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Task</label>
-          <div className="inline-flex rounded-md border border-black/10 dark:border-white/15 overflow-hidden text-sm">
+          <div className="inline-flex rounded-md border border-black/15 dark:border-white/15 overflow-hidden text-sm">
             {([["forecasting", "Forecasting"], ["anomaly_detection", "Anomaly detection"]] as const).map(([value, label]) => (
               <button
                 type="button"
@@ -164,7 +164,7 @@ export default function NewExperimentPage() {
             required
             value={experimentName}
             onChange={(e) => setExperimentName(e.target.value)}
-            className="w-full rounded-md border border-black/10 dark:border-white/15 bg-transparent px-3 py-2 text-sm text-zinc-900 dark:text-zinc-50"
+            className="w-full rounded-md border border-black/15 dark:border-white/15 bg-transparent px-3 py-2 text-sm text-zinc-900 dark:text-zinc-50"
           />
         </div>
 
@@ -184,7 +184,7 @@ export default function NewExperimentPage() {
               }
               setExcludedColumns([]);  // every column starts checked
             }}
-            className="w-full rounded-md border border-black/10 dark:border-white/15 bg-white dark:bg-zinc-900 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-50"
+            className="w-full rounded-md border border-black/15 dark:border-white/15 bg-white dark:bg-zinc-900 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-50"
           >
             <option value="" disabled>
               Select a dataset
@@ -212,7 +212,7 @@ export default function NewExperimentPage() {
                 </button>
               </div>
             </div>
-            <div className="max-h-48 overflow-y-auto grid grid-cols-2 gap-x-4 gap-y-1 rounded-md border border-black/10 dark:border-white/15 p-3 sm:grid-cols-3">
+            <div className="max-h-48 overflow-y-auto grid grid-cols-2 gap-x-4 gap-y-1 rounded-md border border-black/15 dark:border-white/15 p-3 sm:grid-cols-3">
               {selectedDataset.selected_columns.map((name) => (
                 <label key={name} className="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-300">
                   <input
@@ -301,7 +301,7 @@ export default function NewExperimentPage() {
         )}
 
         {isAnomaly && (
-          <div className="rounded-md border border-black/10 dark:border-white/10 p-4 space-y-3">
+          <div className="rounded-md border border-black/15 dark:border-white/10 p-4 space-y-3">
             <p className="text-sm text-zinc-600 dark:text-zinc-400">
               Tensor-AR forecasts the output window; points where |actual − predicted| exceeds the threshold are
               flagged as probable anomalies. Anomaly runs are not part of model comparison.
@@ -324,7 +324,7 @@ export default function NewExperimentPage() {
                 <input
                   type="number" min={0.5} max={20} step={0.5} value={k}
                   onChange={(e) => setK(Number(e.target.value))}
-                  className="w-28 rounded-md border border-black/10 dark:border-white/15 bg-transparent px-3 py-1.5 text-sm"
+                  className="w-28 rounded-md border border-black/15 dark:border-white/15 bg-transparent px-3 py-1.5 text-sm"
                 />
               </div>
             ) : (
@@ -335,7 +335,7 @@ export default function NewExperimentPage() {
                 <input
                   type="number" min={0.01} step={0.1} value={manualThreshold}
                   onChange={(e) => setManualThreshold(Number(e.target.value))}
-                  className="w-28 rounded-md border border-black/10 dark:border-white/15 bg-transparent px-3 py-1.5 text-sm"
+                  className="w-28 rounded-md border border-black/15 dark:border-white/15 bg-transparent px-3 py-1.5 text-sm"
                 />
               </div>
             )}
@@ -357,7 +357,7 @@ export default function NewExperimentPage() {
                   className={`rounded-md border px-3 py-2 text-left text-sm ${
                     modelSlug === m.slug
                       ? "border-foreground bg-foreground text-background"
-                      : "border-black/10 dark:border-white/15 text-zinc-700 dark:text-zinc-300"
+                      : "border-black/15 dark:border-white/15 text-zinc-700 dark:text-zinc-300"
                   } disabled:opacity-30`}
                 >
                   <div className="font-medium">{m.name}</div>
@@ -377,7 +377,7 @@ export default function NewExperimentPage() {
             <select
               value={tensorArDecomposition}
               onChange={(e) => setDecomposition(e.target.value)}
-              className="rounded-md border border-black/10 dark:border-white/15 bg-transparent px-3 py-2 text-sm text-zinc-900 dark:text-zinc-50"
+              className="rounded-md border border-black/15 dark:border-white/15 bg-transparent px-3 py-2 text-sm text-zinc-900 dark:text-zinc-50"
             >
               <option value="cp">CP</option>
               <option value="cp_puzzle">CP Puzzle</option>
@@ -394,7 +394,7 @@ export default function NewExperimentPage() {
               value={hyperparamsText}
               onChange={(e) => setHyperparamsText(e.target.value)}
               rows={6}
-              className="w-full rounded-md border border-black/10 dark:border-white/15 bg-transparent px-3 py-2 font-mono text-xs text-zinc-900 dark:text-zinc-50"
+              className="w-full rounded-md border border-black/15 dark:border-white/15 bg-transparent px-3 py-2 font-mono text-xs text-zinc-900 dark:text-zinc-50"
             />
           </div>
         )}
