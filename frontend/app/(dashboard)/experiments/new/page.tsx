@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { listDatasets, type Dataset } from "@/lib/datasets";
 import { listModels, type ForecastingModel } from "@/lib/models";
+import HyperparamFields from "@/components/HyperparamFields";
 import { ColumnPicker, Field, FormSection, ModelTile, SplitSection, inputClass } from "@/components/form";
 import { clampToLimits, getSplitLimits } from "@/lib/splitLimits";
 import { createExperiment, getSplitPreview, type SplitPreview } from "@/lib/experiments";
@@ -18,7 +19,7 @@ export default function NewExperimentPage() {
   const [testPeriods, setTestPeriods] = useState(10);
   const [inputPeriods, setInputPeriods] = useState(6);
   const [modelSlug, setModelSlug] = useState<string | null>(null);
-  const [hyperparamsText, setHyperparamsText] = useState("{}");
+  const [hyperparams, setHyperparams] = useState<Record<string, unknown>>({});
   const [taskType, setTaskType] = useState<"forecasting" | "anomaly_detection">("forecasting");
   const [thresholdMode, setThresholdMode] = useState<"auto" | "manual">("auto");
   const [k, setK] = useState(3);
@@ -75,38 +76,14 @@ export default function NewExperimentPage() {
 
   useEffect(() => {
     if (selectedModel) {
-      setHyperparamsText(JSON.stringify(selectedModel.default_hyperparams, null, 2));
+      setHyperparams({ ...selectedModel.default_hyperparams });
     }
   }, [selectedModel]);
-
-  // Keeps the dropdown and the JSON box in sync: the dropdown edits the JSON's "decomposition" key.
-  let tensorArDecomposition = "cp";
-  try {
-    tensorArDecomposition = String(JSON.parse(hyperparamsText).decomposition ?? "cp");
-  } catch {
-    // Invalid JSON mid-edit -- keep the default; submit surfaces the parse error.
-  }
-
-  function setDecomposition(value: string) {
-    try {
-      setHyperparamsText(JSON.stringify({ ...JSON.parse(hyperparamsText), decomposition: value }, null, 2));
-    } catch {
-      setHyperparamsText(JSON.stringify({ decomposition: value }, null, 2));
-    }
-  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!datasetId || !effectiveSlug) return;
     setSubmitError(null);
-
-    let hyperparams: Record<string, unknown>;
-    try {
-      hyperparams = JSON.parse(hyperparamsText);
-    } catch {
-      setSubmitError("Hyperparameters must be valid JSON.");
-      return;
-    }
 
     setSubmitting(true);
     try {
@@ -252,24 +229,13 @@ export default function NewExperimentPage() {
             </div>
             {!splitPreview && <p className="text-sm text-zinc-500 dark:text-zinc-400">Choose a dataset to see which models can run.</p>}
 
-            {selectedModel?.slug === "tensor_ar" && (
-              <Field label="Decomposition">
-                <select value={tensorArDecomposition} onChange={(e) => setDecomposition(e.target.value)} className={`${inputClass} sm:w-60`}>
-                  <option value="cp">CP</option>
-                  <option value="cp_puzzle">CP Puzzle</option>
-                </select>
-              </Field>
-            )}
-
             {selectedModel && (
-              <Field label="Hyperparameters (JSON)">
-                <textarea
-                  value={hyperparamsText}
-                  onChange={(e) => setHyperparamsText(e.target.value)}
-                  rows={6}
-                  className={`${inputClass} font-mono text-sm`}
-                />
-              </Field>
+              <HyperparamFields
+                values={hyperparams}
+                defaults={selectedModel.default_hyperparams}
+                onChange={(key, value) => setHyperparams((prev) => ({ ...prev, [key]: value }))}
+                onReset={() => setHyperparams({ ...selectedModel.default_hyperparams })}
+              />
             )}
           </FormSection>
         )}
