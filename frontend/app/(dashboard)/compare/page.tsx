@@ -6,16 +6,7 @@ import { comparisonQuery, deleteComparison, getComparisonGroups, type Comparison
 import { listModels, type ForecastingModel } from "@/lib/models";
 import { getModelColor } from "@/lib/modelColors";
 import { useIsDark } from "@/lib/theme";
-import { TONE_BOX, type Tone } from "@/lib/tones";
-
-function Fact({ label, value, tone }: { label: string; value: string; tone: Tone }) {
-  return (
-    <div className={`rounded-md border px-3 py-2.5 ${TONE_BOX[tone]}`}>
-      <p className="text-sm text-zinc-500 dark:text-zinc-400">{label}</p>
-      <p className="text-xl font-semibold text-zinc-900 dark:text-zinc-50">{value}</p>
-    </div>
-  );
-}
+import FactBox from "@/components/FactBox";
 
 export default function ComparePage() {
   const [groups, setGroups] = useState<ComparisonGroup[] | null>(null);
@@ -87,9 +78,9 @@ export default function ComparePage() {
                 </p>
 
                 <div className="mt-4 grid grid-cols-3 gap-3">
-                  <Fact label="Models" value={String(g.model_slugs.length)} tone="amber" />
-                  <Fact label="Input" value={`${g.input_periods}p`} tone="violet" />
-                  <Fact label="Forecast" value={`${g.test_periods - g.input_periods}p`} tone="emerald" />
+                  <FactBox label="Models" value={String(g.model_slugs.length)} tone="amber" />
+                  <FactBox label="Input" value={`${g.input_periods}p`} tone="violet" />
+                  <FactBox label="Forecast" value={`${g.test_periods - g.input_periods}p`} tone="emerald" />
                 </div>
 
                 <div className="mt-4 flex flex-wrap gap-1.5">

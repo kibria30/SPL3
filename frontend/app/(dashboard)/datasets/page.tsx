@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { listDatasets, type Dataset } from "@/lib/datasets";
-import { TONE_BOX, type Tone } from "@/lib/tones";
+import FactBox from "@/components/FactBox";
 
 const STATUS_STYLES: Record<Dataset["status"], string> = {
   ready: "bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300",
@@ -18,15 +18,6 @@ const STATUS_LABELS: Record<Dataset["status"], string> = {
 };
 
 const VISIBILITY_LABELS: Record<Dataset["visibility"], string> = { system: "System", private: "Private", public: "Public" };
-
-function Fact({ label, value, tone }: { label: string; value: string; tone: Tone }) {
-  return (
-    <div className={`rounded-md border px-3 py-2.5 ${TONE_BOX[tone]}`}>
-      <p className="text-sm text-zinc-500 dark:text-zinc-400">{label}</p>
-      <p className="text-xl font-semibold text-zinc-900 dark:text-zinc-50">{value}</p>
-    </div>
-  );
-}
 
 function DatasetSection({ title, items }: { title: string; items: Dataset[] }) {
   if (items.length === 0) return null;
@@ -52,10 +43,10 @@ function DatasetSection({ title, items }: { title: string; items: Dataset[] }) {
               </span>
             </div>
             <div className="mt-4 grid grid-cols-2 gap-3">
-              <Fact label="Rows" value={d.rows.toLocaleString()} tone="sky" />
-              <Fact label="Columns" value={String(d.selected_columns.length)} tone="violet" />
-              <Fact label="Frequency" value={d.frequency} tone="amber" />
-              <Fact label="Period" value={String(d.period_length)} tone="emerald" />
+              <FactBox label="Rows" value={d.rows.toLocaleString()} tone="sky" />
+              <FactBox label="Columns" value={String(d.selected_columns.length)} tone="violet" />
+              <FactBox label="Frequency" value={d.frequency} tone="amber" />
+              <FactBox label="Period" value={String(d.period_length)} tone="emerald" />
             </div>
           </Link>
         ))}
