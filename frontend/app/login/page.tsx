@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import ThemeToggle from "@/components/ThemeToggle";
 import { loginUser } from "@/lib/auth";
 import { ApiError } from "@/lib/api";
 
@@ -30,6 +31,7 @@ export default function LoginPage() {
 
   return (
     <div className="flex flex-1 items-center justify-center bg-zinc-50 dark:bg-black px-4">
+      <ThemeToggle floating />
       <form
         onSubmit={handleSubmit}
         className="w-full max-w-sm rounded-lg border border-black/10 dark:border-white/10 bg-white dark:bg-zinc-900 p-8 shadow-sm"

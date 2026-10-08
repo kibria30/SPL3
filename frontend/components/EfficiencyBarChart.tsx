@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import dynamic from "next/dynamic";
 import type { Data, Layout } from "plotly.js";
+import { useIsDark } from "@/lib/theme";
 import { getPaletteMode } from "@/lib/palette";
 import { getModelColor } from "@/lib/modelColors";
 
@@ -24,15 +25,7 @@ interface EfficiencyBarChartProps {
 // capped at 3 safely-distinguishable colors by the dataviz palette; bars are an adjacent-pair
 // form, gate-safe across all 8 slots, so this sidesteps the cap entirely.
 export default function EfficiencyBarChart({ title, entries, valueSuffix = "" }: EfficiencyBarChartProps) {
-  const [isDark, setIsDark] = useState(false);
-
-  useEffect(() => {
-    const mq = window.matchMedia("(prefers-color-scheme: dark)");
-    setIsDark(mq.matches);
-    const listener = (e: MediaQueryListEvent) => setIsDark(e.matches);
-    mq.addEventListener("change", listener);
-    return () => mq.removeEventListener("change", listener);
-  }, []);
+  const isDark = useIsDark();
 
   const colors = getPaletteMode(isDark);
 

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { fetchCurrentUser, logoutUser } from "@/lib/auth";
+import ThemeToggle from "@/components/ThemeToggle";
 import type { User } from "@/lib/types";
 
 export default function Nav() {
@@ -58,6 +59,7 @@ export default function Nav() {
               {user.name} {user.role === "admin" && "(admin)"}
             </span>
           )}
+          <ThemeToggle />
           <button
             onClick={handleLogout}
             className="text-sm font-medium text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-zinc-50"
