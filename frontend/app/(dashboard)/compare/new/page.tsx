@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { listDatasets, type Dataset } from "@/lib/datasets";
-import { listModels, type ForecastingModel } from "@/lib/models";
+import { familyLabel, listModels, type ForecastingModel } from "@/lib/models";
 import SplitWindows from "@/components/SplitWindows";
 import { clampToLimits, getSplitLimits } from "@/lib/splitLimits";
 import { getSplitPreview, type SplitPreview } from "@/lib/experiments";
@@ -300,7 +300,7 @@ export default function NewComparisonPage() {
                   />
                   <span>
                     <span className="block font-medium">{m.name}</span>
-                    <span className="block text-xs opacity-70">{m.family}</span>
+                    <span className="block text-xs opacity-70">{familyLabel(m.family)}</span>
                   </span>
                 </label>
               );

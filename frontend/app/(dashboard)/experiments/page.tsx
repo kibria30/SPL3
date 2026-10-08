@@ -7,7 +7,7 @@ import { listExperiments, type Experiment } from "@/lib/experiments";
 import StatusBadge from "@/components/StatusBadge";
 import { listDatasets, type Dataset } from "@/lib/datasets";
 import { formatSpan } from "@/lib/format";
-import { listModels, type ForecastingModel } from "@/lib/models";
+import { familyLabel, listModels, type ForecastingModel } from "@/lib/models";
 
 function formatDuration(start: string | null, end: string | null): string {
   if (!start) return "—";
@@ -105,7 +105,7 @@ export default function ExperimentsPage() {
                       <p className="font-medium text-zinc-900 dark:text-zinc-50">{model?.name ?? `#${e.model_id}`}</p>
                       {model && (
                         <span className="mt-0.5 inline-block rounded-full bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 text-sm text-zinc-600 dark:text-zinc-300">
-                          {model.family}
+                          {familyLabel(model.family)}
                         </span>
                       )}
                     </td>

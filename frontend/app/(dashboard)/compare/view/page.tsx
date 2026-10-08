@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import StatusBadge from "@/components/StatusBadge";
 import ConfigPanel from "@/components/ConfigPanel";
 import { formatSpan } from "@/lib/format";
+import { familyLabel } from "@/lib/models";
 import { getDataset, type Dataset } from "@/lib/datasets";
 import ModelComparisonChart from "@/components/ModelComparisonChart";
 import EfficiencyBarChart from "@/components/EfficiencyBarChart";
@@ -202,7 +203,7 @@ function ComparisonViewContent() {
           {
             title: "Models",
             items: [{ label: "Compared", value: String(view.entries.length) }],
-            chips: view.entries.map((e) => ({ label: e.model_name, value: e.model_family })),
+            chips: view.entries.map((e) => ({ label: e.model_name, value: familyLabel(e.model_family) })),
           },
         ]}
       />

@@ -18,7 +18,7 @@ import {
   type ExperimentResult,
   type SeriesData,
 } from "@/lib/experiments";
-import { listModels, type ForecastingModel } from "@/lib/models";
+import { familyLabel, listModels, type ForecastingModel } from "@/lib/models";
 import { ApiError } from "@/lib/api";
 
 const METRIC_COLUMNS = ["MSE", "MAE", "RMSE", "MASE", "sMAPE"] as const;
@@ -336,7 +336,7 @@ export default function ExperimentDetailPage() {
         <>
           <ResultStats
             modelName={model?.name ?? `#${experiment.model_id}`}
-            modelFamily={model?.family ?? null}
+            modelFamily={model ? familyLabel(model.family) : null}
             trainingSeconds={result.training_time_seconds}
             parameters={result.num_parameters}
             mse={result.metrics_avg.MSE}
