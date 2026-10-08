@@ -4,6 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { listDatasets, type Dataset } from "@/lib/datasets";
 import { listModels, type ForecastingModel } from "@/lib/models";
+import SplitWindows from "@/components/SplitWindows";
+import { clampToLimits, getSplitLimits } from "@/lib/splitLimits";
 import { getSplitPreview, type SplitPreview } from "@/lib/experiments";
 import { comparisonQuery, createComparisonBatch } from "@/lib/compare";
 
@@ -54,6 +56,12 @@ export default function NewComparisonPage() {
   }, [splitPreview]);
 
   const selectedDataset = useMemo(() => datasets.find((d) => d.id === datasetId) ?? null, [datasets, datasetId]);
+
+  // Slider ranges follow the selected dataset's size (values are pulled back in range on dataset change).
+  const limits = useMemo(
+    () => (selectedDataset ? getSplitLimits(selectedDataset.rows, selectedDataset.period_length) : null),
+    [selectedDataset]
+  );
 
   const selectedColumns = useMemo(
     () => (selectedDataset?.selected_columns ?? []).filter((c) => !excludedColumns.includes(c)),
@@ -131,7 +139,14 @@ export default function NewComparisonPage() {
             required
             value={datasetId ?? ""}
             onChange={(e) => {
-              setDatasetId(Number(e.target.value));
+              const id = Number(e.target.value);
+              setDatasetId(id);
+              const d = datasets.find((x) => x.id === id);
+              if (d) {
+                const { test, input } = clampToLimits(testPeriods, inputPeriods, getSplitLimits(d.rows, d.period_length));
+                setTestPeriods(test);
+                setInputPeriods(input);
+              }
               setExcludedColumns([]);  // every column starts checked
             }}
             className="w-full rounded-md border border-black/10 dark:border-white/15 bg-white dark:bg-zinc-900 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-50"
@@ -185,12 +200,12 @@ export default function NewComparisonPage() {
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
-              Test window (periods): {testPeriods}
+              Test window (periods): {testPeriods}{limits && <span className="font-normal text-zinc-500"> (range {limits.testMin}&ndash;{limits.testMax})</span>}
             </label>
             <input
               type="range"
-              min={8}
-              max={25}
+              min={limits?.testMin ?? 3}
+              max={limits?.testMax ?? 25}
               value={testPeriods}
               onChange={(e) => {
                 const v = Number(e.target.value);
@@ -202,12 +217,12 @@ export default function NewComparisonPage() {
           </div>
           <div>
             <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
-              Input window (periods): {inputPeriods}
+              Input window (periods): {inputPeriods}{limits && <span className="font-normal text-zinc-500"> (range {limits.inputMin}&ndash;{limits.inputMax(testPeriods)})</span>}
             </label>
             <input
               type="range"
-              min={5}
-              max={Math.min(20, testPeriods - 1)}
+              min={limits?.inputMin ?? 1}
+              max={limits ? limits.inputMax(testPeriods) : Math.min(20, testPeriods - 1)}
               value={inputPeriods}
               onChange={(e) => setInputPeriods(Number(e.target.value))}
               className="w-full"
@@ -225,11 +240,25 @@ export default function NewComparisonPage() {
             </p>
             <p>
               Train data: {splitPreview.has_train_data ? `${splitPreview.train_len} pts` : "none"} &middot;
-              {" "}DL models {splitPreview.dl_eligible ? "eligible" : "NOT eligible"}
+              {" "}Test: {splitPreview.test_len} pts
+              {splitPreview.has_train_data &&
+                ` (${Math.round((100 * splitPreview.train_len) / (splitPreview.train_len + splitPreview.test_len))}% train)`}
+              {" "}&middot; DL models {splitPreview.dl_eligible ? "eligible" : "NOT eligible"}
             </p>
             {splitPreview.ineligible_reason && (
               <p className="mt-1 text-amber-600 dark:text-amber-400">{splitPreview.ineligible_reason}</p>
             )}
+            {!splitPreview.dl_eligible &&
+              splitPreview.recommended_test_periods !== null &&
+              splitPreview.recommended_input_periods !== null && (
+                <p className="mt-1 text-xs">
+                  A split where all models run: test {splitPreview.recommended_test_periods} periods, input{" "}
+                  {splitPreview.recommended_input_periods} periods.
+                </p>
+              )}
+            <p className="mt-1 text-xs">
+              Each model produces a single forecast over the output window, so scores on a short window are noisy.
+            </p>
           </div>
         )}
 
@@ -275,6 +304,15 @@ export default function NewComparisonPage() {
             })}
           </div>
         </div>
+
+        {splitPreview && selectedDataset && (
+          <SplitWindows
+            preview={splitPreview}
+            testPeriods={testPeriods}
+            inputPeriods={inputPeriods}
+            frequency={selectedDataset.frequency}
+          />
+        )}
 
         {selectedSlugs.has("tensor_ar") && (
           <div>

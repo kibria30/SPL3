@@ -120,7 +120,10 @@ def run_experiment(experiment_id: int) -> None:
         start = time.time()
         if model_meta.family == ModelFamily.trained:
             val_len = max(1, int(len(bundle.train_series) * experiment.val_ratio))
-            train_fit, val = bundle.train_series[:-val_len], bundle.train_series[-val_len:]
+            # Validation carries seq_len rows of look-back from the end of train_fit (same scheme as
+            # forecasting/datasets/base.py::standard_split), so it only has to hold the targets.
+            train_fit = bundle.train_series[:-val_len]
+            val = bundle.train_series[-(val_len + bundle.seq_len):]
             model.fit(train_fit, val, bundle.seq_len, bundle.pred_len, n_vars)
         else:
             # Classical family: eval_input smuggled into the val_series slot -- see module docstring.

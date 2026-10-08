@@ -26,8 +26,8 @@ class ExperimentCreate(BaseModel):
     experiment_name: str
     task_type: TaskType = "forecasting"
     anomaly: AnomalyConfig | None = None  # only used when task_type == "anomaly_detection"
-    test_periods: int = Field(ge=8, le=25)
-    input_periods: int = Field(ge=5, le=20)
+    test_periods: int = Field(ge=3, le=25)
+    input_periods: int = Field(ge=1, le=20)
     val_ratio: float = Field(default=0.2, gt=0, lt=1)
     hyperparams: dict = Field(default_factory=dict)
     selected_columns: list[str] | None = Field(default=None, min_length=1)  # None = all dataset columns
@@ -94,8 +94,8 @@ class ExperimentBatchCreate(BaseModel):
     dataset_id: int
     experiment_name_prefix: str
     task_type: Literal["forecasting"] = "forecasting"  # anomaly detection is not comparable
-    test_periods: int = Field(ge=8, le=25)
-    input_periods: int = Field(ge=5, le=20)
+    test_periods: int = Field(ge=3, le=25)
+    input_periods: int = Field(ge=1, le=20)
     val_ratio: float = Field(default=0.2, gt=0, lt=1)
     model_slugs: list[str] = Field(min_length=1)
     selected_columns: list[str] | None = Field(default=None, min_length=1)

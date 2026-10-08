@@ -182,6 +182,7 @@ def split_preview(
     dataset_id: int,
     test_periods: int,
     input_periods: int,
+    val_ratio: float = 0.2,
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -189,7 +190,7 @@ def split_preview(
     if input_periods >= test_periods:
         raise HTTPException(status_code=422, detail="input_periods must be < test_periods")
     try:
-        result = compute_eligibility(db, dataset, test_periods, input_periods)
+        result = compute_eligibility(db, dataset, test_periods, input_periods, val_ratio=val_ratio)
     except ValueError as e:
         raise HTTPException(status_code=422, detail=str(e))
     return SplitPreviewOut(**result.__dict__)

@@ -50,7 +50,11 @@ class SplitPreviewOut(BaseModel):
     train_len: int
     val_len: int
     train_fit_len: int
+    test_len: int
+    train_windows: int
     has_train_data: bool
     dl_eligible: bool
     eligible_model_slugs: list[str]
     ineligible_reason: str | None
+    recommended_test_periods: int | None
+    recommended_input_periods: int | None
