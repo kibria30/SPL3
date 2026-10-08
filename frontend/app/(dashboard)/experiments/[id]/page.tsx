@@ -4,6 +4,10 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import ForecastChart from "@/components/ForecastChart";
 import StatusBadge from "@/components/StatusBadge";
+import ConfigPanel from "@/components/ConfigPanel";
+import ResultStats from "@/components/ResultStats";
+import { formatSpan } from "@/lib/format";
+import { getDataset, type Dataset } from "@/lib/datasets";
 import {
   deleteExperiment,
   getExperiment,
@@ -175,6 +179,7 @@ export default function ExperimentDetailPage() {
   const [result, setResult] = useState<ExperimentResult | null>(null);
   const [series, setSeries] = useState<SeriesData | null>(null);
   const [models, setModels] = useState<ForecastingModel[]>([]);
+  const [dataset, setDataset] = useState<Dataset | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
@@ -183,6 +188,12 @@ export default function ExperimentDetailPage() {
   useEffect(() => {
     listModels().then(setModels).catch(() => {});
   }, []);
+
+  const datasetId = experiment?.dataset_id;
+  useEffect(() => {
+    if (datasetId === undefined) return;
+    getDataset(datasetId).then(setDataset).catch(() => {});
+  }, [datasetId]);
 
   const model = useMemo(
     () => (experiment ? models.find((m) => m.id === experiment.model_id) ?? null : null),
@@ -262,11 +273,62 @@ export default function ExperimentDetailPage() {
 
       {deleteError && <p className="mb-4 text-sm text-red-600">{deleteError}</p>}
 
-      <p className="mb-6 text-sm text-zinc-500 dark:text-zinc-400">
-        input {experiment.input_periods}p / output {experiment.output_periods}p (test {experiment.test_periods}p)
-        &middot; seq_len {experiment.seq_len} &middot; pred_len {experiment.pred_len} &middot;{" "}
-        {experiment.has_train_data ? "trained on available data" : "no train data (direct-forecast only)"}
-      </p>
+      <ConfigPanel
+        groups={[
+          {
+            title: "Data",
+            items: [
+              { label: "Dataset", value: dataset?.name ?? `#${experiment.dataset_id}` },
+              {
+                label: "Columns",
+                value: experiment.selected_columns
+                  ? `${experiment.selected_columns.length} selected`
+                  : dataset ? `all ${dataset.selected_columns.length}` : "all",
+                hint: experiment.selected_columns?.join(", "),
+              },
+              {
+                label: "Period length",
+                value: formatSpan(experiment.period_length, dataset?.frequency),
+                hint: "one natural cycle of the data",
+              },
+            ],
+          },
+          {
+            title: "Split",
+            items: [
+              {
+                label: "Test window",
+                value: formatSpan(experiment.test_periods * experiment.period_length, dataset?.frequency),
+                hint: `${experiment.test_periods} periods`,
+              },
+              {
+                label: "Input window",
+                value: formatSpan(experiment.seq_len, dataset?.frequency),
+                hint: `${experiment.input_periods} periods, history before the forecast`,
+              },
+              {
+                label: "Forecast window",
+                value: formatSpan(experiment.pred_len, dataset?.frequency),
+                hint: `${experiment.output_periods} periods, what is scored`,
+              },
+            ],
+          },
+          {
+            title: model?.requires_training ? "Model & training" : "Model",
+            items: [
+              { label: "Model", value: model?.name ?? `#${experiment.model_id}`, hint: model?.family },
+              {
+                label: "Training data",
+                value: experiment.has_train_data ? "Available data before the test window" : "None (direct forecast only)",
+              },
+              ...(model?.requires_training ? [{ label: "Validation share", value: `${Math.round(experiment.val_ratio * 100)}% of training data` }] : []),
+            ],
+            chips: Object.entries(experiment.hyperparams)
+              .filter(([k]) => k !== "anomaly")
+              .map(([k, v]) => ({ label: k, value: typeof v === "object" ? JSON.stringify(v) : String(v) })),
+          },
+        ]}
+      />
 
       {experiment.status === "failed" && (
         <p className="mb-6 rounded-md border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950/30 p-3 text-sm text-red-700 dark:text-red-300">
@@ -290,6 +352,8 @@ export default function ExperimentDetailPage() {
 
       {result && (
         <>
+          <ResultStats trainingSeconds={result.training_time_seconds} parameters={result.num_parameters} />
+
           {series && (
             <>
               <h2 className="text-lg font-medium text-zinc-900 dark:text-zinc-50 mb-2">
@@ -310,10 +374,6 @@ export default function ExperimentDetailPage() {
 
           {!isAnomaly && <>
           <h2 className="text-lg font-medium text-zinc-900 dark:text-zinc-50 mb-2">Metrics</h2>
-          <p className="mb-2 text-xs text-zinc-500 dark:text-zinc-400">
-            Training time {result.training_time_seconds.toFixed(2)}s
-            {result.num_parameters !== null && ` · ${result.num_parameters.toLocaleString()} parameters`}
-          </p>
           <div className="mb-6 overflow-x-auto rounded-lg border border-black/10 dark:border-white/10">
             <table className="min-w-full divide-y divide-black/10 dark:divide-white/10 text-sm">
               <thead className="bg-zinc-100 dark:bg-zinc-900">

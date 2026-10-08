@@ -53,7 +53,7 @@ export default function ModelComparisonChart({ featureNames, actual, entries }: 
       margin: { l: 50, r: 20, t: 20, b: 40 },
       paper_bgcolor: colors.surface,
       plot_bgcolor: colors.surface,
-      font: { color: colors.text, family: "system-ui, -apple-system, sans-serif" },
+      font: { color: colors.text, size: 15, family: "system-ui, -apple-system, sans-serif" },
       xaxis: { title: { text: "Time steps into test horizon" }, gridcolor: colors.grid, color: colors.secondary },
       yaxis: { title: { text: featureNames[featureIndex] }, gridcolor: colors.grid, color: colors.secondary },
       legend: { orientation: "h", y: -0.2 },

@@ -1,19 +1,11 @@
 import type { SplitPreview } from "@/lib/experiments";
+import { formatSpan as span } from "@/lib/format";
 
 interface SplitWindowsProps {
   preview: SplitPreview;
   testPeriods: number;
   inputPeriods: number;
   frequency: string; // the dataset's frequency, e.g. "hourly", "weekly"
-}
-
-const UNITS: Record<string, string> = { hourly: "hours", daily: "days", weekly: "weeks", monthly: "months" };
-
-// "312 hours (13 days)" for hourly data, "312 weeks" otherwise; unknown frequencies fall back to "pts".
-function span(points: number, frequency: string) {
-  const unit = UNITS[frequency.toLowerCase()] ?? "pts";
-  const extra = frequency.toLowerCase() === "hourly" && points >= 48 ? ` (${(points / 24).toFixed(points % 24 === 0 ? 0 : 1)} days)` : "";
-  return `${points.toLocaleString()} ${unit}${extra}`;
 }
 
 // How the chosen split carves up the selected dataset: the held-out test window is the input window

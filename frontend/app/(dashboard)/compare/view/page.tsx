@@ -3,6 +3,9 @@
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import StatusBadge from "@/components/StatusBadge";
+import ConfigPanel from "@/components/ConfigPanel";
+import { formatSpan } from "@/lib/format";
+import { getDataset, type Dataset } from "@/lib/datasets";
 import ModelComparisonChart from "@/components/ModelComparisonChart";
 import EfficiencyBarChart from "@/components/EfficiencyBarChart";
 import { deleteComparison, getComparisonView, type ComparisonView } from "@/lib/compare";
@@ -28,6 +31,7 @@ function ComparisonViewContent() {
   const columnsKey = JSON.stringify(params.getAll("columns"));  // stable dep; [] = all columns
 
   const [view, setView] = useState<ComparisonView | null>(null);
+  const [dataset, setDataset] = useState<Dataset | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
@@ -58,6 +62,11 @@ function ComparisonViewContent() {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
   }, [datasetId, testPeriods, inputPeriods, columnsKey]);
+
+  useEffect(() => {
+    if (!datasetId) return;
+    getDataset(datasetId).then(setDataset).catch(() => {});
+  }, [datasetId]);
 
   // Fetch each completed entry's actual/predicted series once, as they become available.
   useEffect(() => {
@@ -164,10 +173,53 @@ function ComparisonViewContent() {
         </button>
       </div>
       {deleteError && <p className="mb-2 text-sm text-red-600">{deleteError}</p>}
-      <p className="mb-6 text-sm text-zinc-500 dark:text-zinc-400">
-        input {view.input_periods}p / output {view.test_periods - view.input_periods}p (test {view.test_periods}p)
-        &middot; seq_len {view.seq_len} &middot; pred_len {view.pred_len} &middot; {view.entries.length} models
-      </p>
+      <ConfigPanel
+        groups={[
+          {
+            title: "Data",
+            items: [
+              { label: "Dataset", value: view.dataset_name },
+              {
+                label: "Columns",
+                value: view.selected_columns
+                  ? `${view.selected_columns.length} selected`
+                  : dataset ? `all ${dataset.selected_columns.length}` : "all",
+                hint: view.selected_columns?.join(", "),
+              },
+              {
+                label: "Period length",
+                value: formatSpan(view.period_length, dataset?.frequency),
+                hint: "one natural cycle of the data",
+              },
+            ],
+          },
+          {
+            title: "Split",
+            items: [
+              {
+                label: "Test window",
+                value: formatSpan(view.test_periods * view.period_length, dataset?.frequency),
+                hint: `${view.test_periods} periods`,
+              },
+              {
+                label: "Input window",
+                value: formatSpan(view.seq_len, dataset?.frequency),
+                hint: `${view.input_periods} periods, history before the forecast`,
+              },
+              {
+                label: "Forecast window",
+                value: formatSpan(view.pred_len, dataset?.frequency),
+                hint: `${view.test_periods - view.input_periods} periods, what is scored`,
+              },
+            ],
+          },
+          {
+            title: "Models",
+            items: [{ label: "Compared", value: `${view.entries.length} models` }],
+            chips: view.entries.map((e) => ({ label: e.model_name, value: e.model_family })),
+          },
+        ]}
+      />
 
       {view.dataset_slug === "weather" && (
         <p className="mb-6 rounded-md border border-amber-200 dark:border-amber-900 bg-amber-50 dark:bg-amber-950/30 p-3 text-sm text-amber-700 dark:text-amber-300">
