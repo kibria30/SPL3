@@ -2,6 +2,12 @@ import { apiFetch } from "./api";
 
 export type ModelFamily = "classical" | "trained";
 
+// The database value stays "trained" (it means "fit by gradient descent"); the UI says "Deep learning"
+// because "trained" reads as "pre-trained".
+export function familyLabel(family: string): string {
+  return family === "trained" ? "Deep learning" : family === "classical" ? "Classical" : family;
+}
+
 export interface ForecastingModel {
   id: number;
   slug: string;

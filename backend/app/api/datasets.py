@@ -1,7 +1,7 @@
 import json
 import os
 
-from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile, status
 from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
@@ -156,8 +156,17 @@ def delete_dataset(dataset_id: int, user: User = Depends(get_current_user), db: 
     db.commit()
 
 
+MAX_PREVIEW_ROWS = 1000
+
+
 @router.get("/{dataset_id}/preview", response_model=DatasetPreviewOut)
-def preview_dataset(dataset_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+def preview_dataset(
+    dataset_id: int,
+    rows: int = Query(10, ge=1, le=MAX_PREVIEW_ROWS),
+    from_end: bool = False,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
     dataset = _get_visible_dataset_or_404(dataset_id, user, db)
 
     try:
@@ -173,8 +182,28 @@ def preview_dataset(dataset_id: int, user: User = Depends(get_current_user), db:
     except Exception as e:
         raise HTTPException(status_code=422, detail=f"Could not read dataset: {e}")
 
-    preview_rows = json.loads(df.head(10).to_json(orient="records"))
-    return DatasetPreviewOut(dataset=DatasetOut.model_validate(dataset), preview_rows=preview_rows)
+    total = len(df)
+    shown = min(rows, total)
+    offset = total - shown if from_end else 0
+    preview_rows = json.loads(df.iloc[offset:offset + shown].to_json(orient="records"))
+
+    desc = df.select_dtypes(include="number").describe().T  # count/mean/std/min/.../max per numeric column
+    column_stats = [
+        dict(
+            name=str(name), count=int(r["count"]), missing=total - int(r["count"]),
+            mean=_finite(r["mean"]), std=_finite(r["std"]), min=_finite(r["min"]), max=_finite(r["max"]),
+        )
+        for name, r in desc.iterrows()
+    ]
+    return DatasetPreviewOut(
+        dataset=DatasetOut.model_validate(dataset), preview_rows=preview_rows,
+        total_rows=total, row_offset=offset, column_stats=column_stats,
+    )
+
+
+def _finite(value) -> float | None:
+    value = float(value)
+    return value if value == value and value not in (float("inf"), float("-inf")) else None
 
 
 @router.get("/{dataset_id}/split-preview", response_model=SplitPreviewOut)

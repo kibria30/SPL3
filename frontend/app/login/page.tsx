@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import ThemeToggle from "@/components/ThemeToggle";
+import { inputClass } from "@/components/form";
 import { loginUser } from "@/lib/auth";
 import { ApiError } from "@/lib/api";
 
@@ -30,17 +31,17 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex flex-1 items-center justify-center bg-zinc-50 dark:bg-black px-4">
+    <div className="flex flex-1 items-center justify-center bg-zinc-100 dark:bg-black px-4">
       <ThemeToggle floating />
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-sm rounded-lg border border-black/10 dark:border-white/10 bg-white dark:bg-zinc-900 p-8 shadow-sm"
+        className="w-full max-w-sm rounded-lg border border-black/15 shadow-sm dark:border-white/10 dark:shadow-none bg-white dark:bg-zinc-900 p-8"
       >
-        <h1 className="text-xl font-semibold mb-6 text-zinc-900 dark:text-zinc-50">
+        <h1 className="mb-6 text-2xl font-semibold text-zinc-900 dark:text-zinc-50">
           Log in
         </h1>
 
-        <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+        <label className="mb-1.5 block text-base font-medium text-zinc-700 dark:text-zinc-300">
           Email
         </label>
         <input
@@ -48,10 +49,10 @@ export default function LoginPage() {
           required
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full mb-4 rounded-md border border-black/10 dark:border-white/15 bg-transparent px-3 py-2 text-sm text-zinc-900 dark:text-zinc-50"
+          className={`${inputClass} mb-4`}
         />
 
-        <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+        <label className="mb-1.5 block text-base font-medium text-zinc-700 dark:text-zinc-300">
           Password
         </label>
         <input
@@ -59,20 +60,20 @@ export default function LoginPage() {
           required
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full mb-4 rounded-md border border-black/10 dark:border-white/15 bg-transparent px-3 py-2 text-sm text-zinc-900 dark:text-zinc-50"
+          className={`${inputClass} mb-4`}
         />
 
-        {error && <p className="mb-4 text-sm text-red-600">{error}</p>}
+        {error && <p className="mb-4 text-base text-red-600">{error}</p>}
 
         <button
           type="submit"
           disabled={pending}
-          className="w-full rounded-md bg-foreground text-background py-2 text-sm font-medium disabled:opacity-50"
+          className="w-full rounded-md bg-foreground py-2.5 text-base font-medium text-background disabled:opacity-50"
         >
           {pending ? "Logging in..." : "Log in"}
         </button>
 
-        <p className="mt-4 text-sm text-zinc-600 dark:text-zinc-400">
+        <p className="mt-4 text-base text-zinc-600 dark:text-zinc-400">
           No account?{" "}
           <Link href="/register" className="font-medium underline">
             Register

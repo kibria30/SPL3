@@ -26,6 +26,7 @@ export interface ComparisonEntry {
 export interface ComparisonView {
   dataset_id: number;
   dataset_name: string;
+  comparison_name: string | null;
   dataset_slug: string | null;
   test_periods: number;
   input_periods: number;
@@ -39,6 +40,7 @@ export interface ComparisonView {
 export interface ComparisonGroup {
   dataset_id: number;
   dataset_name: string;
+  comparison_name: string | null;
   test_periods: number;
   input_periods: number;
   period_length: number;

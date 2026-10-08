@@ -28,9 +28,22 @@ class DatasetOut(BaseModel):
     model_config = {"from_attributes": True}
 
 
+class ColumnStats(BaseModel):
+    name: str
+    count: int
+    missing: int
+    mean: float | None
+    std: float | None
+    min: float | None
+    max: float | None
+
+
 class DatasetPreviewOut(BaseModel):
     dataset: DatasetOut
-    preview_rows: list[dict]  # first N rows of available_columns, JSON-serializable
+    preview_rows: list[dict]  # the requested slice of rows, JSON-serializable
+    total_rows: int
+    row_offset: int  # 0-based index of the first returned row in the full dataset
+    column_stats: list[ColumnStats]  # numeric columns only, over the full dataset
 
 
 class DatasetColumnUpdate(BaseModel):

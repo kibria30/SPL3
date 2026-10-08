@@ -127,6 +127,7 @@ class ComparisonEntryOut(BaseModel):
 class ComparisonViewOut(BaseModel):
     dataset_id: int
     dataset_name: str
+    comparison_name: str | None = None
     dataset_slug: str | None
     test_periods: int
     input_periods: int
@@ -140,6 +141,7 @@ class ComparisonViewOut(BaseModel):
 class ComparisonGroupOut(BaseModel):
     dataset_id: int
     dataset_name: str
+    comparison_name: str | None = None  # the name the user gave the comparison, recovered from its experiment names
     test_periods: int
     input_periods: int
     period_length: int

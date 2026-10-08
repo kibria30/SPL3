@@ -1,8 +1,13 @@
 "use client";
 
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import StatusBadge from "@/components/StatusBadge";
+import ConfigPanel from "@/components/ConfigPanel";
+import { formatSpan } from "@/lib/format";
+import { familyLabel } from "@/lib/models";
+import { getDataset, type Dataset } from "@/lib/datasets";
 import ModelComparisonChart from "@/components/ModelComparisonChart";
 import EfficiencyBarChart from "@/components/EfficiencyBarChart";
 import { deleteComparison, getComparisonView, type ComparisonView } from "@/lib/compare";
@@ -28,6 +33,7 @@ function ComparisonViewContent() {
   const columnsKey = JSON.stringify(params.getAll("columns"));  // stable dep; [] = all columns
 
   const [view, setView] = useState<ComparisonView | null>(null);
+  const [dataset, setDataset] = useState<Dataset | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
@@ -58,6 +64,11 @@ function ComparisonViewContent() {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
   }, [datasetId, testPeriods, inputPeriods, columnsKey]);
+
+  useEffect(() => {
+    if (!datasetId) return;
+    getDataset(datasetId).then(setDataset).catch(() => {});
+  }, [datasetId]);
 
   // Fetch each completed entry's actual/predicted series once, as they become available.
   useEffect(() => {
@@ -152,8 +163,12 @@ function ComparisonViewContent() {
 
   return (
     <div>
+      <Link href="/compare" className="mb-3 inline-block text-sm text-zinc-500 dark:text-zinc-400 hover:underline">
+        &larr; Compare
+      </Link>
+
       <div className="mb-1 flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-50">{view.dataset_name}</h1>
+        <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-50">{view.comparison_name ?? view.dataset_name}</h1>
         <button
           onClick={handleDelete}
           disabled={deleting || isLive}
@@ -164,14 +179,46 @@ function ComparisonViewContent() {
         </button>
       </div>
       {deleteError && <p className="mb-2 text-sm text-red-600">{deleteError}</p>}
-      <p className="mb-6 text-sm text-zinc-500 dark:text-zinc-400">
-        input {view.input_periods}p / output {view.test_periods - view.input_periods}p (test {view.test_periods}p)
-        &middot; seq_len {view.seq_len} &middot; pred_len {view.pred_len} &middot; {view.entries.length} models
-      </p>
+      <ConfigPanel
+        groups={[
+          {
+            title: "Data",
+            tone: "sky",
+            items: [
+              { label: "Dataset", value: view.dataset_name },
+              {
+                label: "Columns",
+                value: dataset
+                  ? `${view.selected_columns?.length ?? dataset.selected_columns.length} of ${dataset.selected_columns.length}`
+                  : `${view.selected_columns?.length ?? "all"}`,
+              },
+              { label: "Period length", value: formatSpan(view.period_length, dataset?.frequency) },
+            ],
+          },
+          {
+            title: "Split",
+            tone: "violet",
+            items: [
+              {
+                label: "Test window",
+                value: `${formatSpan(view.test_periods * view.period_length, dataset?.frequency)} · ${view.test_periods} periods`,
+              },
+              { label: "Input window", value: `${formatSpan(view.seq_len, dataset?.frequency)} · ${view.input_periods} periods` },
+              { label: "Forecast window", value: `${formatSpan(view.pred_len, dataset?.frequency)} · ${view.test_periods - view.input_periods} periods` },
+            ],
+          },
+          {
+            title: "Models",
+            tone: "amber",
+            items: [{ label: "Compared", value: String(view.entries.length) }],
+            chips: view.entries.map((e) => ({ label: e.model_name, value: familyLabel(e.model_family) })),
+          },
+        ]}
+      />
 
       {view.dataset_slug === "weather" && (
         <p className="mb-6 rounded-md border border-amber-200 dark:border-amber-900 bg-amber-50 dark:bg-amber-950/30 p-3 text-sm text-amber-700 dark:text-amber-300">
-          This dataset refreshes live &mdash; experiments created on different dates may reflect
+          This dataset refreshes live, so experiments created on different dates may reflect
           slightly different historical windows. Check each row&apos;s created time if results look
           surprising.
         </p>
@@ -191,9 +238,9 @@ function ComparisonViewContent() {
       )}
 
       <h2 className="text-lg font-medium text-zinc-900 dark:text-zinc-50 mb-2">Leaderboard</h2>
-      <div className="mb-8 overflow-x-auto rounded-lg border border-black/10 dark:border-white/10">
+      <div className="mb-8 overflow-x-auto rounded-lg border border-black/15 shadow-sm dark:border-white/10 dark:shadow-none">
         <table className="min-w-full divide-y divide-black/10 dark:divide-white/10 text-sm">
-          <thead className="bg-zinc-100 dark:bg-zinc-900">
+          <thead className="bg-zinc-100 dark:bg-zinc-800">
             <tr>
               <th className="px-3 py-2 text-left font-medium text-zinc-600 dark:text-zinc-300">Model</th>
               <th className="px-3 py-2 text-left font-medium text-zinc-600 dark:text-zinc-300">Status</th>
@@ -207,7 +254,7 @@ function ComparisonViewContent() {
               <th className="px-3 py-2 text-right font-medium text-zinc-600 dark:text-zinc-300">val_ratio</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-black/10 dark:divide-white/10 bg-white dark:bg-zinc-950">
+          <tbody className="divide-y divide-black/10 dark:divide-white/10 bg-white dark:bg-zinc-900">
             {sortedEntries.map((e) => (
               <tr key={e.experiment.id}>
                 <td className="px-3 py-2 font-medium text-zinc-900 dark:text-zinc-50">{e.model_name}</td>

@@ -9,6 +9,6 @@ const STATUS_STYLES: Record<ExperimentStatus, string> = {
 
 export default function StatusBadge({ status }: { status: ExperimentStatus }) {
   return (
-    <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_STYLES[status]}`}>{status}</span>
+    <span className={`rounded-full px-2.5 py-0.5 text-sm font-medium ${STATUS_STYLES[status]}`}>{status}</span>
   );
 }

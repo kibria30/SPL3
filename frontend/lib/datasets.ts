@@ -25,9 +25,22 @@ export interface Dataset {
   uploaded_at: string;
 }
 
+export interface ColumnStats {
+  name: string;
+  count: number;
+  missing: number;
+  mean: number | null;
+  std: number | null;
+  min: number | null;
+  max: number | null;
+}
+
 export interface DatasetPreview {
   dataset: Dataset;
   preview_rows: Record<string, unknown>[];
+  total_rows: number;
+  row_offset: number; // 0-based index of the first returned row
+  column_stats: ColumnStats[];
 }
 
 export function listDatasets() {
@@ -38,8 +51,8 @@ export function getDataset(id: number) {
   return apiFetch<Dataset>(`/datasets/${id}`);
 }
 
-export function previewDataset(id: number) {
-  return apiFetch<DatasetPreview>(`/datasets/${id}/preview`);
+export function previewDataset(id: number, rows = 10, fromEnd = false) {
+  return apiFetch<DatasetPreview>(`/datasets/${id}/preview?rows=${rows}&from_end=${fromEnd}`);
 }
 
 export async function uploadDataset(

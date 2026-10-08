@@ -1,9 +1,14 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import ForecastChart from "@/components/ForecastChart";
 import StatusBadge from "@/components/StatusBadge";
+import ConfigPanel from "@/components/ConfigPanel";
+import ResultStats from "@/components/ResultStats";
+import { formatSpan } from "@/lib/format";
+import { getDataset, type Dataset } from "@/lib/datasets";
 import {
   deleteExperiment,
   getExperiment,
@@ -14,7 +19,7 @@ import {
   type ExperimentResult,
   type SeriesData,
 } from "@/lib/experiments";
-import { listModels, type ForecastingModel } from "@/lib/models";
+import { familyLabel, listModels, type ForecastingModel } from "@/lib/models";
 import { ApiError } from "@/lib/api";
 
 const METRIC_COLUMNS = ["MSE", "MAE", "RMSE", "MASE", "sMAPE"] as const;
@@ -47,7 +52,7 @@ function TrainingProgress({ experiment }: { experiment: Experiment }) {
   }, [experiment.training_log]);
 
   return (
-    <div className="rounded-md border border-black/10 dark:border-white/10 p-4">
+    <div className="rounded-lg border border-black/15 shadow-sm dark:border-white/10 dark:shadow-none bg-white dark:bg-zinc-900 p-5">
       <div className="mb-2 flex items-center justify-between text-sm text-zinc-600 dark:text-zinc-400">
         <span>
           {epoch && total ? `Epoch ${epoch} / ${total}` : "Starting training..."}
@@ -108,7 +113,7 @@ function AnomalyPanel({
   );
   flagged.sort((a, b) => b.residual - a.residual);
 
-  const inputClass = "w-24 rounded-md border border-black/10 dark:border-white/15 bg-transparent px-2 py-1 text-sm";
+  const inputClass = "w-24 rounded-md border border-black/15 dark:border-white/15 bg-white dark:bg-zinc-950 px-2.5 py-1.5 text-base text-zinc-900 dark:text-zinc-50";
 
   return (
     <div className="mb-8 space-y-4">
@@ -133,22 +138,22 @@ function AnomalyPanel({
           />
         </label>
       </div>
-      <p className="text-xs text-zinc-500 dark:text-zinc-400">
+      <p className="text-sm text-zinc-500 dark:text-zinc-400">
         Thresholds (normalized units):{" "}
         {series.feature_names.map((n, j) => `${n} ${anomaly.thresholds[j].toFixed(3)}`).join(" · ")}.
         Changes here preview the flags; they are not saved to the experiment.
       </p>
       {flagged.length > 0 && (
-        <div className="max-h-64 overflow-auto rounded-lg border border-black/10 dark:border-white/10">
+        <div className="max-h-64 overflow-auto rounded-lg border border-black/15 shadow-sm dark:border-white/10 dark:shadow-none">
           <table className="min-w-full divide-y divide-black/10 dark:divide-white/10 text-sm">
-            <thead className="bg-zinc-100 dark:bg-zinc-900">
+            <thead className="bg-zinc-100 dark:bg-zinc-800">
               <tr>
                 {["Step", "Feature", "Actual", "Predicted", "|Residual|"].map((h) => (
                   <th key={h} className="px-3 py-2 text-left font-medium text-zinc-600 dark:text-zinc-300">{h}</th>
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-black/10 dark:divide-white/10 bg-white dark:bg-zinc-950 text-zinc-700 dark:text-zinc-300">
+            <tbody className="divide-y divide-black/10 dark:divide-white/10 bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300">
               {flagged.map((f) => (
                 <tr key={`${f.step}-${f.feature}`}>
                   <td className="px-3 py-1.5">{f.step}</td>
@@ -175,6 +180,7 @@ export default function ExperimentDetailPage() {
   const [result, setResult] = useState<ExperimentResult | null>(null);
   const [series, setSeries] = useState<SeriesData | null>(null);
   const [models, setModels] = useState<ForecastingModel[]>([]);
+  const [dataset, setDataset] = useState<Dataset | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
@@ -183,6 +189,12 @@ export default function ExperimentDetailPage() {
   useEffect(() => {
     listModels().then(setModels).catch(() => {});
   }, []);
+
+  const datasetId = experiment?.dataset_id;
+  useEffect(() => {
+    if (datasetId === undefined) return;
+    getDataset(datasetId).then(setDataset).catch(() => {});
+  }, [datasetId]);
 
   const model = useMemo(
     () => (experiment ? models.find((m) => m.id === experiment.model_id) ?? null : null),
@@ -245,6 +257,10 @@ export default function ExperimentDetailPage() {
 
   return (
     <div>
+      <Link href="/experiments" className="mb-3 inline-block text-sm text-zinc-500 dark:text-zinc-400 hover:underline">
+        &larr; Experiments
+      </Link>
+
       <div className="mb-6 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-50">{experiment.experiment_name}</h1>
@@ -262,11 +278,47 @@ export default function ExperimentDetailPage() {
 
       {deleteError && <p className="mb-4 text-sm text-red-600">{deleteError}</p>}
 
-      <p className="mb-6 text-sm text-zinc-500 dark:text-zinc-400">
-        input {experiment.input_periods}p / output {experiment.output_periods}p (test {experiment.test_periods}p)
-        &middot; seq_len {experiment.seq_len} &middot; pred_len {experiment.pred_len} &middot;{" "}
-        {experiment.has_train_data ? "trained on available data" : "no train data (direct-forecast only)"}
-      </p>
+      <ConfigPanel
+        groups={[
+          {
+            title: "Data",
+            tone: "sky",
+            items: [
+              { label: "Dataset", value: dataset?.name ?? `#${experiment.dataset_id}` },
+              {
+                label: "Columns",
+                value: dataset
+                  ? `${experiment.selected_columns?.length ?? dataset.selected_columns.length} of ${dataset.selected_columns.length}`
+                  : `${experiment.selected_columns?.length ?? "all"}`,
+              },
+              { label: "Period length", value: formatSpan(experiment.period_length, dataset?.frequency) },
+            ],
+          },
+          {
+            title: "Split",
+            tone: "violet",
+            items: [
+              {
+                label: "Test window",
+                value: `${formatSpan(experiment.test_periods * experiment.period_length, dataset?.frequency)} · ${experiment.test_periods} periods`,
+              },
+              { label: "Input window", value: `${formatSpan(experiment.seq_len, dataset?.frequency)} · ${experiment.input_periods} periods` },
+              { label: "Forecast window", value: `${formatSpan(experiment.pred_len, dataset?.frequency)} · ${experiment.output_periods} periods` },
+            ],
+          },
+          {
+            title: "Training",
+            tone: "amber",
+            items: [
+              { label: "Training data", value: experiment.has_train_data ? "Yes" : "None" },
+              ...(model?.requires_training ? [{ label: "Validation share", value: `${Math.round(experiment.val_ratio * 100)}%` }] : []),
+            ],
+            chips: Object.entries(experiment.hyperparams)
+              .filter(([k]) => k !== "anomaly")
+              .map(([k, v]) => ({ label: k, value: typeof v === "object" ? JSON.stringify(v) : String(v) })),
+          },
+        ]}
+      />
 
       {experiment.status === "failed" && (
         <p className="mb-6 rounded-md border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950/30 p-3 text-sm text-red-700 dark:text-red-300">
@@ -290,6 +342,15 @@ export default function ExperimentDetailPage() {
 
       {result && (
         <>
+          <ResultStats
+            modelName={model?.name ?? `#${experiment.model_id}`}
+            modelFamily={model ? familyLabel(model.family) : null}
+            trainingSeconds={result.training_time_seconds}
+            parameters={result.num_parameters}
+            mse={result.metrics_avg.MSE}
+            mae={result.metrics_avg.MAE}
+          />
+
           {series && (
             <>
               <h2 className="text-lg font-medium text-zinc-900 dark:text-zinc-50 mb-2">
@@ -310,13 +371,9 @@ export default function ExperimentDetailPage() {
 
           {!isAnomaly && <>
           <h2 className="text-lg font-medium text-zinc-900 dark:text-zinc-50 mb-2">Metrics</h2>
-          <p className="mb-2 text-xs text-zinc-500 dark:text-zinc-400">
-            Training time {result.training_time_seconds.toFixed(2)}s
-            {result.num_parameters !== null && ` · ${result.num_parameters.toLocaleString()} parameters`}
-          </p>
-          <div className="mb-6 overflow-x-auto rounded-lg border border-black/10 dark:border-white/10">
+          <div className="mb-6 overflow-x-auto rounded-lg border border-black/15 shadow-sm dark:border-white/10 dark:shadow-none">
             <table className="min-w-full divide-y divide-black/10 dark:divide-white/10 text-sm">
-              <thead className="bg-zinc-100 dark:bg-zinc-900">
+              <thead className="bg-zinc-100 dark:bg-zinc-800">
                 <tr>
                   <th className="px-3 py-2 text-left font-medium text-zinc-600 dark:text-zinc-300">Feature</th>
                   {METRIC_COLUMNS.map((m) => (
@@ -326,7 +383,7 @@ export default function ExperimentDetailPage() {
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-black/10 dark:divide-white/10 bg-white dark:bg-zinc-950">
+              <tbody className="divide-y divide-black/10 dark:divide-white/10 bg-white dark:bg-zinc-900">
                 {result.metrics_per_feature.map((row) => (
                   <tr key={row.Feature}>
                     <td className="px-3 py-2 text-zinc-900 dark:text-zinc-50">{row.Feature}</td>
@@ -337,7 +394,7 @@ export default function ExperimentDetailPage() {
                     ))}
                   </tr>
                 ))}
-                <tr className="bg-zinc-50 dark:bg-zinc-900 font-medium">
+                <tr className="bg-zinc-50 dark:bg-zinc-800/60 font-medium">
                   <td className="px-3 py-2 text-zinc-900 dark:text-zinc-50">Average</td>
                   {METRIC_COLUMNS.map((m) => (
                     <td key={m} className="px-3 py-2 text-right text-zinc-900 dark:text-zinc-50">

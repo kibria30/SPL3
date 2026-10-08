@@ -72,7 +72,7 @@ export default function ForecastChart({ featureNames, actual, predicted, anomaly
       margin: { l: 50, r: 20, t: 20, b: 40 },
       paper_bgcolor: colors.surface,
       plot_bgcolor: colors.surface,
-      font: { color: colors.text, family: "system-ui, -apple-system, sans-serif" },
+      font: { color: colors.text, size: 15, family: "system-ui, -apple-system, sans-serif" },
       xaxis: { title: { text: "Time steps into test horizon" }, gridcolor: colors.grid, color: colors.secondary },
       yaxis: { title: { text: featureNames[featureIndex] }, gridcolor: colors.grid, color: colors.secondary },
       legend: { orientation: "h", y: -0.2 },
@@ -83,16 +83,16 @@ export default function ForecastChart({ featureNames, actual, predicted, anomaly
   }, [actual, predicted, anomaly, featureIndex, colors, featureNames]);
 
   return (
-    <div>
+    <div className="rounded-lg border border-black/15 shadow-sm dark:border-white/10 dark:shadow-none p-4" style={{ backgroundColor: colors.surface }}>
       <div className="mb-3 flex flex-wrap gap-2">
         {featureNames.map((name, i) => (
           <button
             key={name}
             onClick={() => setFeatureIndex(i)}
-            className={`rounded-full px-3 py-1 text-xs font-medium border ${
+            className={`rounded-full px-3 py-1 text-sm font-medium border ${
               i === featureIndex
                 ? "bg-foreground text-background border-transparent"
-                : "border-black/10 dark:border-white/15 text-zinc-600 dark:text-zinc-300"
+                : "border-black/15 dark:border-white/15 text-zinc-600 dark:text-zinc-300"
             }`}
           >
             {name}

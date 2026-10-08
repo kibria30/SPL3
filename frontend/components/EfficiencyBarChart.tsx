@@ -46,8 +46,8 @@ export default function EfficiencyBarChart({ title, entries, valueSuffix = "" }:
       margin: { l: 50, r: 20, t: 30, b: 60 },
       paper_bgcolor: colors.surface,
       plot_bgcolor: colors.surface,
-      font: { color: colors.text, family: "system-ui, -apple-system, sans-serif" },
-      title: { text: title, font: { size: 13, color: colors.secondary } },
+      font: { color: colors.text, size: 15, family: "system-ui, -apple-system, sans-serif" },
+      title: { text: title, font: { size: 16, color: colors.secondary } },
       xaxis: { gridcolor: colors.grid, color: colors.secondary },
       yaxis: { gridcolor: colors.grid, color: colors.secondary },
       showlegend: false,
@@ -58,5 +58,9 @@ export default function EfficiencyBarChart({ title, entries, valueSuffix = "" }:
 
   if (entries.length === 0) return null;
 
-  return <Plot data={data} layout={layout} style={{ width: "100%" }} config={{ responsive: true, displaylogo: false }} />;
+  return (
+    <div className="rounded-lg border border-black/15 shadow-sm dark:border-white/10 dark:shadow-none p-2 overflow-hidden" style={{ backgroundColor: colors.surface }}>
+      <Plot data={data} layout={layout} style={{ width: "100%" }} config={{ responsive: true, displaylogo: false }} />
+    </div>
+  );
 }

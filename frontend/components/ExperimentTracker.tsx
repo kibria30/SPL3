@@ -71,7 +71,7 @@ export default function ExperimentTracker() {
 
   return (
     <>
-      <div className="fixed top-4 right-4 z-50 flex flex-col gap-2">
+      <div className="fixed top-20 right-4 z-50 flex flex-col gap-2">
         {toasts.map((t) => (
           <Link
             key={t.id}
@@ -90,7 +90,7 @@ export default function ExperimentTracker() {
 
       {activeJobs.length > 0 && (
         <div className="fixed bottom-4 right-4 z-40 w-72">
-          <div className="rounded-lg border border-black/10 dark:border-white/10 bg-white dark:bg-zinc-900 shadow-lg">
+          <div className="rounded-lg border border-black/15 dark:border-white/10 bg-white dark:bg-zinc-900 shadow-lg">
             <button
               onClick={() => setCollapsed((c) => !c)}
               className="flex w-full items-center justify-between px-4 py-2 text-sm font-medium text-zinc-900 dark:text-zinc-50"
@@ -102,12 +102,12 @@ export default function ExperimentTracker() {
               <span className="text-zinc-400">{collapsed ? "▲" : "▼"}</span>
             </button>
             {!collapsed && (
-              <div className="max-h-64 space-y-1 overflow-y-auto border-t border-black/10 dark:border-white/10 p-2">
+              <div className="max-h-64 space-y-1 overflow-y-auto border-t border-black/15 dark:border-white/10 p-2">
                 {activeJobs.map((job) => (
                   <Link
                     key={job.id}
                     href={`/experiments/${job.id}`}
-                    className="block rounded-md px-2 py-1.5 text-xs hover:bg-zinc-50 dark:hover:bg-zinc-800"
+                    className="block rounded-md px-2 py-1.5 text-sm hover:bg-zinc-50 dark:hover:bg-zinc-800"
                   >
                     <p className="truncate font-medium text-zinc-900 dark:text-zinc-50">{job.experiment_name}</p>
                     <p className="text-zinc-500 dark:text-zinc-400">{job.status}</p>
