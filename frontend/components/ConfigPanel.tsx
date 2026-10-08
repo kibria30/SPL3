@@ -3,7 +3,6 @@ import type { ReactNode } from "react";
 export interface ConfigItem {
   label: string;
   value: ReactNode;
-  hint?: string;
 }
 
 export interface ConfigGroup {
@@ -30,7 +29,6 @@ export default function ConfigPanel({ groups }: { groups: ConfigGroup[] }) {
                 <div key={item.label}>
                   <dt className="text-sm text-zinc-500 dark:text-zinc-400">{item.label}</dt>
                   <dd className="text-lg font-medium text-zinc-900 dark:text-zinc-50">{item.value}</dd>
-                  {item.hint && <dd className="text-sm text-zinc-500 dark:text-zinc-400">{item.hint}</dd>}
                 </div>
               ))}
             </dl>

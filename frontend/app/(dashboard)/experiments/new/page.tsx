@@ -267,33 +267,36 @@ export default function NewExperimentPage() {
 
         {previewError && <p className="text-sm text-red-600">{previewError}</p>}
 
-        {splitPreview && (
-          <div className="rounded-md border border-black/10 dark:border-white/10 p-4 text-sm text-zinc-600 dark:text-zinc-400">
-            <p>
-              Output window: {testPeriods - inputPeriods} periods &middot; seq_len {splitPreview.seq_len} &middot;
-              pred_len {splitPreview.pred_len}
-            </p>
-            <p>
-              Train data: {splitPreview.has_train_data ? `${splitPreview.train_len} pts` : "none"} &middot;
-              {" "}Test: {splitPreview.test_len} pts
-              {splitPreview.has_train_data &&
-                ` (${Math.round((100 * splitPreview.train_len) / (splitPreview.train_len + splitPreview.test_len))}% train)`}
-              {" "}&middot; DL models {splitPreview.dl_eligible ? "eligible" : "NOT eligible"}
-            </p>
+        {splitPreview && selectedDataset && (
+          <div className="space-y-3">
+            <SplitWindows
+              preview={splitPreview}
+              testPeriods={testPeriods}
+              inputPeriods={inputPeriods}
+              frequency={selectedDataset.frequency}
+            />
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-base">
+              <span className="text-zinc-500 dark:text-zinc-400">Deep learning models</span>
+              <span
+                className={`rounded-full px-2.5 py-0.5 text-sm font-medium ${
+                  splitPreview.dl_eligible
+                    ? "bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300"
+                    : "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300"
+                }`}
+              >
+                {splitPreview.dl_eligible ? "Eligible" : "Not eligible"}
+              </span>
+              {!splitPreview.dl_eligible &&
+                splitPreview.recommended_test_periods !== null &&
+                splitPreview.recommended_input_periods !== null && (
+                  <span className="text-sm text-zinc-500 dark:text-zinc-400">
+                    Try test {splitPreview.recommended_test_periods}, input {splitPreview.recommended_input_periods}
+                  </span>
+                )}
+            </div>
             {splitPreview.ineligible_reason && (
-              <p className="mt-1 text-amber-600 dark:text-amber-400">{splitPreview.ineligible_reason}</p>
+              <p className="text-sm text-amber-700 dark:text-amber-400">{splitPreview.ineligible_reason}</p>
             )}
-            {!splitPreview.dl_eligible &&
-              splitPreview.recommended_test_periods !== null &&
-              splitPreview.recommended_input_periods !== null && (
-                <p className="mt-1 text-xs">
-                  A split where all models run: test {splitPreview.recommended_test_periods} periods, input{" "}
-                  {splitPreview.recommended_input_periods} periods.
-                </p>
-              )}
-            <p className="mt-1 text-xs">
-              Each model produces a single forecast over the output window, so scores on a short window are noisy.
-            </p>
           </div>
         )}
 
@@ -364,15 +367,6 @@ export default function NewExperimentPage() {
             })}
           </div>
         </div>
-        )}
-
-        {splitPreview && selectedDataset && (
-          <SplitWindows
-            preview={splitPreview}
-            testPeriods={testPeriods}
-            inputPeriods={inputPeriods}
-            frequency={selectedDataset.frequency}
-          />
         )}
 
         {selectedModel?.slug === "tensor_ar" && (

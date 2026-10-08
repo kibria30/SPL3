@@ -281,16 +281,11 @@ export default function ExperimentDetailPage() {
               { label: "Dataset", value: dataset?.name ?? `#${experiment.dataset_id}` },
               {
                 label: "Columns",
-                value: experiment.selected_columns
-                  ? `${experiment.selected_columns.length} selected`
-                  : dataset ? `all ${dataset.selected_columns.length}` : "all",
-                hint: experiment.selected_columns?.join(", "),
+                value: dataset
+                  ? `${experiment.selected_columns?.length ?? dataset.selected_columns.length} of ${dataset.selected_columns.length}`
+                  : `${experiment.selected_columns?.length ?? "all"}`,
               },
-              {
-                label: "Period length",
-                value: formatSpan(experiment.period_length, dataset?.frequency),
-                hint: "one natural cycle of the data",
-              },
+              { label: "Period length", value: formatSpan(experiment.period_length, dataset?.frequency) },
             ],
           },
           {
@@ -298,30 +293,17 @@ export default function ExperimentDetailPage() {
             items: [
               {
                 label: "Test window",
-                value: formatSpan(experiment.test_periods * experiment.period_length, dataset?.frequency),
-                hint: `${experiment.test_periods} periods`,
+                value: `${formatSpan(experiment.test_periods * experiment.period_length, dataset?.frequency)} · ${experiment.test_periods} periods`,
               },
-              {
-                label: "Input window",
-                value: formatSpan(experiment.seq_len, dataset?.frequency),
-                hint: `${experiment.input_periods} periods, history before the forecast`,
-              },
-              {
-                label: "Forecast window",
-                value: formatSpan(experiment.pred_len, dataset?.frequency),
-                hint: `${experiment.output_periods} periods, what is scored`,
-              },
+              { label: "Input window", value: `${formatSpan(experiment.seq_len, dataset?.frequency)} · ${experiment.input_periods} periods` },
+              { label: "Forecast window", value: `${formatSpan(experiment.pred_len, dataset?.frequency)} · ${experiment.output_periods} periods` },
             ],
           },
           {
-            title: model?.requires_training ? "Model & training" : "Model",
+            title: "Training",
             items: [
-              { label: "Model", value: model?.name ?? `#${experiment.model_id}`, hint: model?.family },
-              {
-                label: "Training data",
-                value: experiment.has_train_data ? "Available data before the test window" : "None (direct forecast only)",
-              },
-              ...(model?.requires_training ? [{ label: "Validation share", value: `${Math.round(experiment.val_ratio * 100)}% of training data` }] : []),
+              { label: "Training data", value: experiment.has_train_data ? "Yes" : "None" },
+              ...(model?.requires_training ? [{ label: "Validation share", value: `${Math.round(experiment.val_ratio * 100)}%` }] : []),
             ],
             chips: Object.entries(experiment.hyperparams)
               .filter(([k]) => k !== "anomaly")
@@ -352,7 +334,14 @@ export default function ExperimentDetailPage() {
 
       {result && (
         <>
-          <ResultStats trainingSeconds={result.training_time_seconds} parameters={result.num_parameters} />
+          <ResultStats
+            modelName={model?.name ?? `#${experiment.model_id}`}
+            modelFamily={model?.family ?? null}
+            trainingSeconds={result.training_time_seconds}
+            parameters={result.num_parameters}
+            mse={result.metrics_avg.MSE}
+            mae={result.metrics_avg.MAE}
+          />
 
           {series && (
             <>

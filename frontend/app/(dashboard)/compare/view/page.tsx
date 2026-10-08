@@ -181,16 +181,11 @@ function ComparisonViewContent() {
               { label: "Dataset", value: view.dataset_name },
               {
                 label: "Columns",
-                value: view.selected_columns
-                  ? `${view.selected_columns.length} selected`
-                  : dataset ? `all ${dataset.selected_columns.length}` : "all",
-                hint: view.selected_columns?.join(", "),
+                value: dataset
+                  ? `${view.selected_columns?.length ?? dataset.selected_columns.length} of ${dataset.selected_columns.length}`
+                  : `${view.selected_columns?.length ?? "all"}`,
               },
-              {
-                label: "Period length",
-                value: formatSpan(view.period_length, dataset?.frequency),
-                hint: "one natural cycle of the data",
-              },
+              { label: "Period length", value: formatSpan(view.period_length, dataset?.frequency) },
             ],
           },
           {
@@ -198,24 +193,15 @@ function ComparisonViewContent() {
             items: [
               {
                 label: "Test window",
-                value: formatSpan(view.test_periods * view.period_length, dataset?.frequency),
-                hint: `${view.test_periods} periods`,
+                value: `${formatSpan(view.test_periods * view.period_length, dataset?.frequency)} · ${view.test_periods} periods`,
               },
-              {
-                label: "Input window",
-                value: formatSpan(view.seq_len, dataset?.frequency),
-                hint: `${view.input_periods} periods, history before the forecast`,
-              },
-              {
-                label: "Forecast window",
-                value: formatSpan(view.pred_len, dataset?.frequency),
-                hint: `${view.test_periods - view.input_periods} periods, what is scored`,
-              },
+              { label: "Input window", value: `${formatSpan(view.seq_len, dataset?.frequency)} · ${view.input_periods} periods` },
+              { label: "Forecast window", value: `${formatSpan(view.pred_len, dataset?.frequency)} · ${view.test_periods - view.input_periods} periods` },
             ],
           },
           {
             title: "Models",
-            items: [{ label: "Compared", value: `${view.entries.length} models` }],
+            items: [{ label: "Compared", value: String(view.entries.length) }],
             chips: view.entries.map((e) => ({ label: e.model_name, value: e.model_family })),
           },
         ]}
