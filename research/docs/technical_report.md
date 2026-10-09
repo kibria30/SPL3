@@ -262,7 +262,7 @@ client-only (`ssr: false`) dynamic import, since Plotly touches `window` at impo
 ## 13. Forward-Compatibility Groundwork
 
 `Experiment.task_type` (default `"forecasting"`) was added as a lightweight discriminator column
-ahead of a planned **anomaly detection** feature (see `docs/anomaly_detection_scope.md`): fit on
+ahead of a planned **anomaly detection** feature (see `research/docs/anomaly_detection_scope.md`): fit on
 normal data, forecast the expected "normal" sequence, flag points where the residual exceeds a
 threshold. The design reuses the existing single-window forecast pipeline almost entirely
 unchanged — no rolling re-prediction loop, no labeled ground-truth dataset, no new metrics module —

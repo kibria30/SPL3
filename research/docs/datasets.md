@@ -2,7 +2,7 @@
 
 Details of every dataset listed in the app's Datasets page: where it comes from, why it exists,
 what a row and a column mean, and how it relates to the benchmark used in the DLinear paper
-(Zeng et al., AAAI-23, `docs/Dlinear.pdf`).
+(Zeng et al., AAAI-23, `research/docs/Dlinear.pdf`).
 
 Facts below are of two kinds. **Verified** facts were checked against the files in `backend/` and
 the loader code. **Background** facts (who collected the data and why) come from the datasets'

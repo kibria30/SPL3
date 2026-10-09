@@ -3,3 +3,6 @@
 /__MACOSX
 /datasets
 __pycache__/
+# deployment secrets
+.env
+.kilo/
