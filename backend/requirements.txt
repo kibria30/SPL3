@@ -1,23 +1,26 @@
+# Pinned to the versions the app was developed/tested with (the Docker image installs exactly these).
+# Notably statsmodels must stay <0.15: tensor_ar.py uses AutoReg(old_names=False), removed upstream later.
+
 # Web framework
-fastapi
-uvicorn[standard]
-sqlalchemy
-alembic
-psycopg2-binary
-pydantic-settings
-pydantic[email]
-bcrypt
-pyjwt
-python-multipart
-openpyxl
+fastapi==0.141.1
+uvicorn[standard]==0.52.0
+sqlalchemy==2.0.51
+alembic==1.18.5
+psycopg2-binary==2.9.12
+pydantic-settings==2.14.2
+pydantic[email]==2.13.4
+bcrypt==5.0.0
+pyjwt==2.13.0
+python-multipart==0.0.32
+openpyxl==3.1.5
 
 # Forecasting library (app/forecasting/, a copy of tsf_compare/) dependencies
-numpy
-pandas
-scikit-learn
-torch
-tensorly
-tensordecomp
-statsmodels
-matplotlib
-requests
+numpy==2.2.6
+pandas==2.3.3
+scikit-learn==1.7.2
+torch==2.13.0   # Dockerfile installs the CPU build of this from the PyTorch index first
+tensorly==0.9.0
+tensordecomp==0.1.0
+statsmodels==0.14.6
+matplotlib==3.10.9
+requests==2.34.2

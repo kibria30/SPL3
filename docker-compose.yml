@@ -1,0 +1,79 @@
+# Production stack: Caddy -> (Next.js frontend, FastAPI backend) -> PostgreSQL.
+# Only Caddy publishes a host port; everything else is on the private network.
+#
+#   cp .env.example .env   # then edit the secrets
+#   docker compose up -d --build
+name: tsf
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-tsf}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: ${POSTGRES_DB:-tsf_forecasting_app}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks: [internal]
+
+  backend:
+    build:
+      context: ./backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql+psycopg2://${POSTGRES_USER:-tsf}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-tsf_forecasting_app}
+      JWT_SECRET: ${JWT_SECRET:?set JWT_SECRET in .env (openssl rand -hex 32)}
+      # Browser talks to the same origin through Caddy, so CORS is not exercised; kept for direct access.
+      CORS_ORIGINS: '["http://localhost:${HTTP_PORT:-8742}"]'
+    volumes:
+      - storage:/app/storage   # user uploads + experiment result arrays
+      - data:/app/data         # downloaded system-dataset caches
+    networks: [internal]
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        NEXT_PUBLIC_API_URL: /api
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks: [internal]
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    depends_on:
+      frontend:
+        condition: service_healthy
+      backend:
+        condition: service_healthy
+    environment:
+      SITE_ADDRESS: ${SITE_ADDRESS:-:80}
+    ports:
+      - "${HTTP_PORT:-8742}:80"
+    volumes:
+      - ./deploy/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks: [internal]
+
+networks:
+  internal:
+
+volumes:
+  pgdata:
+  storage:
+  data:
+  caddy_data:
+  caddy_config:

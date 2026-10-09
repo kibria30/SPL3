@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 SPL3 is a time-series forecasting project ("Visual TS Forecasting Library") whose headline goal is evaluating **Tensor-AR / PowerCast** against baselines (SARIMA, ETS, DLinear, iTransformer, TimeXer, TimeMixer). It has two halves:
 
 - `backend/` + `frontend/` — the actual web app (FastAPI + Next.js). Self-contained; nothing outside these two folders is needed at runtime.
-- `experiment/`, `Experiment-Passed/`, `experiment-failed/` — research notebooks/CSVs (M4, ILI, weather, traffic, GECCO anomaly, Bangladesh rainfall, etc.). Not part of the app; treat as scratch/analysis. `docs/technical_report.md` is the best overview of the app's design and decisions; `docs/diagrams/` holds drawio diagrams.
+- `research/` — everything non-app, see `research/README.md`: `research/experiment/`, `research/experiment-passed/`, `research/experiment-failed/` — research notebooks/CSVs (M4, ILI, weather, traffic, GECCO anomaly, Bangladesh rainfall, etc.). Not part of the app; treat as scratch/analysis. `research/docs/technical_report.md` is the best overview of the app's design and decisions; `research/docs/diagrams/` holds drawio diagrams.
 - `env/` (virtualenv) and `.kilo/` are untracked/tooling — ignore.
 
 ## Commands

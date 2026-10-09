@@ -26,7 +26,7 @@ class Experiment(Base):
 
     # discriminates what an experiment's actual/predicted arrays mean -- forecasting today; the
     # anomaly-detection scope reuses the same run pipeline and reads residuals differently, keyed
-    # off this field, without needing a schema fork (see docs/anomaly_detection_scope.md).
+    # off this field, without needing a schema fork (see research/docs/anomaly_detection_scope.md).
     task_type: Mapped[str] = mapped_column(String(32), default="forecasting", server_default="forecasting")
 
     # period-based split params (see forecasting/datasets/period_split.py) -- NOT ratio-based;
