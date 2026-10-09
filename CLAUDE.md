@@ -29,9 +29,10 @@ Frontend (run from `frontend/`):
 npm run dev      # :3000
 npm run build
 npm run lint
+npm run test:e2e # Playwright acceptance tests (see frontend/e2e/README.md; needs port 8000 free, uses isolated DB tsf_e2e)
 ```
 
-There is no test suite. `frontend/AGENTS.md` warns that this Next.js (16.x) has breaking changes — read the relevant guide in `frontend/node_modules/next/dist/docs/` before writing frontend code (e.g. route protection lives in `frontend/proxy.ts`, not `middleware.ts`).
+There is no unit-test suite; acceptance tests live in `frontend/e2e/` (Playwright). `frontend/AGENTS.md` warns that this Next.js (16.x) has breaking changes — read the relevant guide in `frontend/node_modules/next/dist/docs/` before writing frontend code (e.g. route protection lives in `frontend/proxy.ts`, not `middleware.ts`).
 
 ## Architecture
 
