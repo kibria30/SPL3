@@ -52,3 +52,21 @@ test.describe("theme", () => {
     expect(await html.evaluate((h) => h.classList.contains("dark"))).toBe(after);
   });
 });
+
+test.describe("browser tab titles", () => {
+  test("public pages", async ({ page }) => {
+    await page.goto("/");
+    await expect(page).toHaveTitle("TS Forecasting Library");
+    await page.goto("/login");
+    await expect(page).toHaveTitle("Log in · TS Forecasting Library");
+    await page.goto("/register");
+    await expect(page).toHaveTitle("Create an account · TS Forecasting Library");
+  });
+  test("dashboard sections", async ({ userPage: page }) => {
+    for (const [path, title] of [["/datasets", "Datasets"], ["/models", "Models"], ["/experiments/new", "Experiments"], ["/compare", "Compare"], ["/admin", "Admin"]])
+      {
+        await page.goto(path);
+        await expect(page).toHaveTitle(`${title} · TS Forecasting Library`);
+      }
+  });
+});
